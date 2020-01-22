@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <EditText
+        android:id="@+id/database_username_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Username"/>
+    <EditText
+        android:id="@+id/database_password_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Password"/>
+    <Button
+        android:id="@+id/database_button_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update Database"/>
+    <Button
+        android:id="@+id/database_button_get_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get all rows"
+        android:layout_marginTop="20dp"/>
+    <TextView
+        android:id="@+id/database_text_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""/>
+</LinearLayout>
