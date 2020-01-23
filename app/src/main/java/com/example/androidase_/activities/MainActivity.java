@@ -69,6 +69,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button notificationButton = findViewById(R.id.notification_button);
+        notificationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(MainActivity.this, NotificationActivity.class);
+                myIntent.putExtra("key", "test");
+                MainActivity.this.startActivity(myIntent);
+            }
+        });
+
 //        Button buttonHttp = this.findViewById(R.id.button_http);
 //        buttonHttp.setOnClickListener(new View.OnClickListener() {
 //            @Override
