@@ -2,13 +2,23 @@ package com.example.androidase_.mqtt;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+
+import com.example.androidase_.R;
+import com.example.androidase_.activities.MapsActivity;
+import com.example.androidase_.activities.NotificationActivity;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -71,8 +81,8 @@ public class MqttMessageService extends Service {
 
     @SuppressLint("SetTextI18n")
     private void setMessageNotification(@NonNull String topic, @NonNull String msg) {
-        MqttActivity.mqttInfo.setText( "\n\n" + topic + " ---> " + msg);
-
+//        MqttActivity.mqttInfo.setText( "\n\n" + topic + " ---> " + msg);
+        showNotification(topic, msg);
         AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext())
                 .setTitle("WARNING!!!!")
                 .setMessage("You are in a Disaster Zone!!!\nIts time to PANIC!!!")
@@ -80,5 +90,27 @@ public class MqttMessageService extends Service {
 
         Objects.requireNonNull(alertDialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         alertDialog.show();
+    }
+
+    void showNotification(String title, String message)
+    {
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("YOUR_CHANNEL_ID",
+                    "YOUR_CHANNEL_NAME",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("YOUR_NOTIFICATION_CHANNEL_DISCRIPTION");
+            mNotificationManager.createNotificationChannel(channel);
+        }
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "YOUR_CHANNEL_ID")
+                .setSmallIcon(R.mipmap.ic_launcher) // notification icon
+                .setContentTitle(title) // title for notification
+                .setContentText(message)// message for notification
+                .setAutoCancel(true); // clear notification after click
+        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(pi);
+        mNotificationManager.notify(0, mBuilder.build());
     }
 }

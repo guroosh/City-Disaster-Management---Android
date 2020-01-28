@@ -55,7 +55,7 @@ public class NotificationActivity extends AppCompatActivity {
             }
         });
     }
-    void showNotification(String title, String message) {
+    public void showNotification(String title, String message) {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

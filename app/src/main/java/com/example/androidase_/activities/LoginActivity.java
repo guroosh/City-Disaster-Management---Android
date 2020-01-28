@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import com.example.androidase_.R;
 import com.example.androidase_.database.BaseDataHelper;
+import com.example.androidase_.mqtt.MqttActivity;
+import com.example.androidase_.mqtt.MqttMessageService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,13 +39,7 @@ public class LoginActivity extends AppCompatActivity {
                 BaseDataHelper userDatabase = new BaseDataHelper(LoginActivity.this);
                 userDatabase.createTable(tableName, new ArrayList<String>(Arrays.asList(columnNames)));
                 HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
-                if (usernameString.equals(row.get(columnNames[0])) && passwordString.equals(row.get(columnNames[1]))) {
-                    Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
-                    myIntent.putExtra("username", usernameString);
-                    LoginActivity.this.startActivity(myIntent);
-                } else {
-                    Toast.makeText(LoginActivity.this, "Invalid Username/Password", Toast.LENGTH_SHORT).show();
-                }
+                checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
             }
         });
 
@@ -55,5 +51,20 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this.startActivity(myIntent);
             }
         });
+//        Intent intent = new Intent(LoginActivity.this, MqttMessageService.class);
+//        startService(intent);
+    }
+    public Boolean checkUsernameAndPassword(String username, String password, String u1, String p1)
+    {
+//        if (username.equals(u1) && password.equals(p1)) {
+//            Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
+//            myIntent.putExtra("username", username);
+//            LoginActivity.this.startActivity(myIntent);
+//            return true;
+//        } else {
+//            Toast.makeText(LoginActivity.this, "Invalid Username/Password", Toast.LENGTH_SHORT).show();
+//            return false;
+//        }
+        return false;
     }
 }
