@@ -39,7 +39,14 @@ public class LoginActivity extends AppCompatActivity {
                 BaseDataHelper userDatabase = new BaseDataHelper(LoginActivity.this);
                 userDatabase.createTable(tableName, new ArrayList<String>(Arrays.asList(columnNames)));
                 HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
-                checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
+                boolean doCredentialMatch = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
+                if (doCredentialMatch) {
+                    Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
+                    myIntent.putExtra("username", usernameString);
+                    LoginActivity.this.startActivity(myIntent);
+                } else {
+                    Toast.makeText(LoginActivity.this, "Invalid Username/Password", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -51,20 +58,10 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this.startActivity(myIntent);
             }
         });
-//        Intent intent = new Intent(LoginActivity.this, MqttMessageService.class);
-//        startService(intent);
     }
-    public Boolean checkUsernameAndPassword(String username, String password, String u1, String p1)
-    {
-//        if (username.equals(u1) && password.equals(p1)) {
-//            Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
-//            myIntent.putExtra("username", username);
-//            LoginActivity.this.startActivity(myIntent);
-//            return true;
-//        } else {
-//            Toast.makeText(LoginActivity.this, "Invalid Username/Password", Toast.LENGTH_SHORT).show();
-//            return false;
-//        }
-        return false;
+
+    // function to check whether 2 set of username password match or do not
+    public Boolean checkUsernameAndPassword(String username, String password, String u1, String p1) {
+        return username.equals(u1) && password.equals(p1);
     }
 }
