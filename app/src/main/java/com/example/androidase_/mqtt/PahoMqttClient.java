@@ -40,7 +40,6 @@ public class PahoMqttClient {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     mqttAndroidClient.setBufferOpts(getDisconnectedBufferOptions());
                     Log.d(TAG, "Success");
-                    MqttActivity.mqttMetaInfo.setText("Connected to URL: " + MQTT_BROKER_URL + "\n");
                     try {
                         if (flg == 0) {
                             subscribe(mqttAndroidClient);
@@ -116,7 +115,6 @@ public class PahoMqttClient {
             @Override
             public void onSuccess(IMqttToken iMqttToken) {
                 Log.d(TAG, "Subscribe Successfully: " + "default");
-                MqttActivity.mqttMetaInfo.setText(MqttActivity.mqttMetaInfo.getText() + "TOPIC: " + topic);
             }
 
             @Override

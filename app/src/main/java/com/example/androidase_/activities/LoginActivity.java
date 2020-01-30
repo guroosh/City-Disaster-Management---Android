@@ -39,8 +39,8 @@ public class LoginActivity extends AppCompatActivity {
                 BaseDataHelper userDatabase = new BaseDataHelper(LoginActivity.this);
                 userDatabase.createTable(tableName, new ArrayList<String>(Arrays.asList(columnNames)));
                 HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
-                boolean doCredentialMatch = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
-                if (doCredentialMatch) {
+                boolean doCredentialsMatch = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
+                if (doCredentialsMatch) {
                     Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
                     myIntent.putExtra("username", usernameString);
                     LoginActivity.this.startActivity(myIntent);
@@ -60,7 +60,8 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // function to check whether 2 set of username password match or do not
+    // function to check whether 2 set of username password match or do not match
+    // returns true if they match, returns false otherwise
     public Boolean checkUsernameAndPassword(String username, String password, String u1, String p1) {
         return username.equals(u1) && password.equals(p1);
     }
