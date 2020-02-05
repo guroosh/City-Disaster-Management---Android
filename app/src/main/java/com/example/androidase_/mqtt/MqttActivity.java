@@ -77,18 +77,18 @@ public class MqttActivity extends AppCompatActivity {
 
 
         //way 2
-//        Intent intent = new Intent(MqttActivity.this, MqttMessageService.class);
-//        startService(intent);
+        Intent intent = new Intent(MqttActivity.this, MqttMessageService.class);
+        startService(intent);
 
 
         //way 3
-        Intent myAlarm = new Intent(getApplicationContext(), AlarmReceiver.class);
-        //myAlarm.putExtra("project_id", project_id); //Put Extra if needed
-        PendingIntent recurringAlarm = PendingIntent.getBroadcast(getApplicationContext(), 0, myAlarm, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager alarms = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        Calendar updateTime = Calendar.getInstance();
-        //updateTime.setWhatever(0);    //set time to start first occurrence of alarm
-        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP, updateTime.getTimeInMillis(), 500, recurringAlarm); //you can modify the interval of course
+//        Intent myAlarm = new Intent(getApplicationContext(), AlarmReceiver.class);
+//        //myAlarm.putExtra("project_id", project_id); //Put Extra if needed
+//        PendingIntent recurringAlarm = PendingIntent.getBroadcast(getApplicationContext(), 0, myAlarm, PendingIntent.FLAG_CANCEL_CURRENT);
+//        AlarmManager alarms = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+//        Calendar updateTime = Calendar.getInstance();
+//        //updateTime.setWhatever(0);    //set time to start first occurrence of alarm
+//        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP, updateTime.getTimeInMillis(), 500, recurringAlarm); //you can modify the interval of course
 
     }
 }

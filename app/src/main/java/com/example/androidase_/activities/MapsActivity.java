@@ -151,8 +151,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        MqttAndroidClient client = pahoMqttClient.getMqttClient(getApplicationContext(), MQTT_BROKER_URL, 0);
 
         //Option 2 to start Mqtt listener
-        Intent intent2 = new Intent(MapsActivity.this, MqttMessageServiceForMaps.class);
-        startService(intent2);
+//        Intent intent2 = new Intent(MapsActivity.this, MqttMessageServiceForMaps.class);
+//        startService(intent2);
     }
 
     private void initializePlaces() throws NullPointerException {

@@ -7,7 +7,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.widget.Toast;
 
-public class P2PBroadcastReceiver extends BroadcastReceiver {
+public class  P2PBroadcastReceiver extends BroadcastReceiver {
     private WifiP2pManager mManager;
     private WifiP2pManager.Channel mChannel;
     private P2PActivity mActivity;
