@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">AndroidASE_</string>
+    <string-array name="arrayGovernmentIDType">
+        <item>Select Government ID Type</item>
+        <item>Passport</item>
+        <item>GNIB Card</item>
+        <item>Driving License</item>
+        <item>Public Service Card</item>
+        <item>European ID Card</item>
+    </string-array>
+    <string-array name="arrayVolunteeringField">
+        <item>Select Volunteering Field</item>
+        <item>Medical</item>
+        <item>Crowd Control</item>
+        <item>Traffic Management</item>
+        <item>Others</item>
+    </string-array>
 </resources>

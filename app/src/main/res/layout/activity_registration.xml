@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.RegistrationActivity"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/editTextEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textEmailAddress"
+        android:text="Email*"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="244dp" />
+
+    <EditText
+        android:id="@+id/editTextPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPassword"
+        android:text="Password"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="476dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="274dp"
+        tools:layout_editor_absoluteY="109dp">
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <EditText
+        android:id="@+id/editTextFirstName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="First Name*"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="154dp" />
+
+    <EditText
+        android:id="@+id/editTextLastName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Last Name*"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="199dp" />
+
+    <EditText
+        android:id="@+id/editTextPhone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Phone"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="286dp" />
+
+
+    <Spinner
+        android:id="@+id/spinnerGovernmentIDType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="-56dp"
+        tools:layout_editor_absoluteY="331dp"
+        android:entries="@array/arrayGovernmentIDType"
+        />
+
+    <EditText
+        android:id="@+id/editTextGovernmentIDNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Government ID number*"
+        tools:layout_editor_absoluteX="101dp"
+        tools:layout_editor_absoluteY="363dp" />
+
+    <CheckBox
+        android:id="@+id/checkBoxVolunteer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Do you want to be a volunteer?"
+        tools:layout_editor_absoluteX="101dp"
+        tools:layout_editor_absoluteY="419dp" />
+
+    <Spinner
+        android:id="@+id/spinnerVolunteeringField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        tools:layout_editor_absoluteX="-2dp"
+        tools:layout_editor_absoluteY="452dp"
+        android:entries="@array/arrayVolunteeringField"
+        />
+
+    <Button
+        android:id="@+id/buttonRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        tools:layout_editor_absoluteX="156dp"
+        tools:layout_editor_absoluteY="550dp" />
+
+    <Button
+        android:id="@+id/register_buttonCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/places_cancel" />
+
+    <TextView
+        android:id="@+id/registration_requiredTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="   * is required." />
+
+    <TextView
+        android:id="@+id/register_messageTextView"
+        android:layout_width="match_parent"
+        android:layout_height="215dp"
+        android:textColor="#FF0000" />
+
+</LinearLayout>

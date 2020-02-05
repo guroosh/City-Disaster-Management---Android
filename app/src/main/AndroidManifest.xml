@@ -20,7 +20,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name= "android.permission.BIND_JOB_SERVICE" />
 
 
     <application
@@ -32,6 +31,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        <activity android:name=".activities.RegistrationActivity" />
         <activity android:name=".activities.NotificationActivity" />
 
         <meta-data
@@ -53,16 +53,12 @@
         <activity android:name=".activities.MapsActivity" />
         <activity android:name=".mqtt.MqttActivity" />
 
-        <service android:name="org.eclipse.paho.android.service.MqttService" />
-<!--        <service android:name=".mqtt.MqttMessageService" />-->
+        <service android:name="org.eclipse.paho.android.service.MqttService" /> <!-- <service android:name=".mqtt.MqttMessageService" /> -->
         <service android:name=".mqtt.MqttMessageServiceForMaps" />
+
         <receiver android:name=".other_classes.AlarmReceiver" />
+
         <service android:name=".mqtt.MqttMessageService" />
-
-<!--        <service android:name=".mqtt.MqttMessageService"-->
-<!--            android:permission="android.permission.BIND_JOB_SERVICE"-->
-<!--            android:exported="true"/>-->
-
     </application>
 
 </manifest>

@@ -30,8 +30,8 @@ public class LoginActivity extends AppCompatActivity {
         final String tableName = "user_data";
         final String[] columnNames = {"username", "password"};
 
-        Button signIn = findViewById(R.id.login);
-        signIn.setOnClickListener(new View.OnClickListener() {
+        Button signInButton = findViewById(R.id.login);
+        signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String usernameString = username.getText().toString();
@@ -39,8 +39,8 @@ public class LoginActivity extends AppCompatActivity {
                 BaseDataHelper userDatabase = new BaseDataHelper(LoginActivity.this);
                 userDatabase.createTable(tableName, new ArrayList<String>(Arrays.asList(columnNames)));
                 HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
-                boolean doCredentialMatch = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
-                if (doCredentialMatch) {
+                boolean doCredentialsMatch = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
+                if (doCredentialsMatch) {
                     Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
                     myIntent.putExtra("username", usernameString);
                     LoginActivity.this.startActivity(myIntent);
@@ -50,8 +50,19 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Button testingPage = findViewById(R.id.testing_page);
-        testingPage.setOnClickListener(new View.OnClickListener() {
+        Button signupButton = findViewById(R.id.signup);
+        signupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                    Intent myIntent = new Intent(LoginActivity.this, RegistrationActivity.class);
+                    LoginActivity.this.startActivity(myIntent);
+
+            }
+        });
+
+        Button testingPageButton = findViewById(R.id.testing_page);
+        testingPageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
@@ -60,8 +71,11 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // function to check whether 2 set of username password match or do not
+    // function to check whether 2 set of username password match or do not match
+    // returns true if they match, returns false otherwise
     public Boolean checkUsernameAndPassword(String username, String password, String u1, String p1) {
         return username.equals(u1) && password.equals(p1);
     }
+
+
 }
