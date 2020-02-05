@@ -13,17 +13,30 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textEmailAddress"
-        android:text="Email*"
+        android:text=""
+        android:hint="Email*"
         tools:layout_editor_absoluteX="99dp"
         tools:layout_editor_absoluteY="244dp" />
 
     <EditText
-        android:id="@+id/editTextPassword"
+        android:id="@+id/registration_editTextPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPassword"
-        android:text="Password"
+        android:text=""
+        android:hint="Password"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="476dp" />
+
+    <EditText
+        android:id="@+id/registration_editTextConfirmPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Confirm Password"
+        android:inputType="textPassword"
+        android:text=""
         tools:layout_editor_absoluteX="99dp"
         tools:layout_editor_absoluteY="476dp" />
 
@@ -41,7 +54,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="First Name*"
+        android:text=""
+        android:hint="First Name*"
         tools:layout_editor_absoluteX="99dp"
         tools:layout_editor_absoluteY="154dp" />
 
@@ -51,7 +65,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Last Name*"
+        android:text=""
+        android:hint="Last Name*"
         tools:layout_editor_absoluteX="99dp"
         tools:layout_editor_absoluteY="199dp" />
 
@@ -61,7 +76,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Phone"
+        android:text=""
+        android:hint="Phone"
         tools:layout_editor_absoluteX="99dp"
         tools:layout_editor_absoluteY="286dp" />
 
@@ -73,6 +89,7 @@
         tools:layout_editor_absoluteX="-56dp"
         tools:layout_editor_absoluteY="331dp"
         android:entries="@array/arrayGovernmentIDType"
+        android:autofillHints="Government ID Types"
         />
 
     <EditText
@@ -81,7 +98,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Government ID number*"
+        android:text=""
+        android:hint="Government ID number*"
         tools:layout_editor_absoluteX="101dp"
         tools:layout_editor_absoluteY="363dp" />
 
@@ -101,6 +119,7 @@
         tools:layout_editor_absoluteX="-2dp"
         tools:layout_editor_absoluteY="452dp"
         android:entries="@array/arrayVolunteeringField"
+        android:autofillHints="Volunteering Field"
         />
 
     <Button

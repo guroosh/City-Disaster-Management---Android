@@ -19,17 +19,7 @@ public class RegistrationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
-    /*
-        final EditText editTextEmail = findViewById(R.id.editTextEmail);
-        final EditText editTextPassword = findViewById(R.id.editTextPassword);
-        final EditText editTextFirstName = findViewById(R.id.editTextFirstName);
-        final EditText editTextLastName = findViewById(R.id.editTextLastName);
-        final EditText editTextPhone = findViewById(R.id.editTextPhone);
-        final EditText editTextGovernmentIDNumber = findViewById(R.id.editTextGovernmentIDNumber);
-        final CheckBox checkBoxVolunteer = findViewById(R.id.checkBoxVolunteer);
-        final Spinner spinnerVolunteeringField = findViewById(R.id.spinnerVolunteeringField);
-        final Spinner spinnerGovernmentIDType = findViewById(R.id.spinnerGovernmentIDType);
-        */
+
         final TextView textViewMessage = findViewById(R.id.register_messageTextView);
 
         Button registerButton = findViewById(R.id.buttonRegister);
@@ -37,42 +27,23 @@ public class RegistrationActivity extends AppCompatActivity {
 
             public void onClick(View v){
                 _message = "";
-                String email = getStringFromView(R.id.editTextEmail,0);
-                String phone = getStringFromView(R.id.editTextPhone,0);
-                String firstName = getStringFromView(R.id.editTextFirstName,0);
-                String lastName = getStringFromView(R.id.editTextLastName,0);
-                String password = getStringFromView(R.id.editTextPassword,0);
-                String governmentIDNumber = getStringFromView(R.id.editTextGovernmentIDNumber,0);
-                String isVolunteer = getStringFromView(R.id.checkBoxVolunteer,1);
-                String volunteeringField = getStringFromView(R.id.spinnerVolunteeringField,2);
-                String governmentIDType = getStringFromView(R.id.spinnerGovernmentIDType,2);
-                Spinner spinnerGovernmentIDType = findViewById(R.id.spinnerGovernmentIDType);
-                if(email.isEmpty()){
-                    showEmpty(R.id.editTextEmail,"Email");
-                }
-                if(!email.contains("@")){
-                    _message += "The format of Email is incorrect.\n";
-                }
-                if(firstName.isEmpty()){
-                    showEmpty(R.id.editTextFirstName,"First Name");
-                }
-                if(lastName.isEmpty()){
-                    showEmpty(R.id.editTextLastName,"Last Name");
-                }
-                if(governmentIDNumber.isEmpty()){
-                    showEmpty(R.id.editTextGovernmentIDNumber,"Government ID Number");
-                }
-                System.out.println(spinnerGovernmentIDType.getSelectedItemPosition());
-                if(spinnerGovernmentIDType.getSelectedItemPosition() == 0){
-                    _message += "Please select government ID type.\n";
-                }
+                boolean flg = true;
+                flg = checkCondition(R.id.editTextEmail,0,"Email");
+                flg = checkCondition(0,1,"The format of Email is incorrect.");
+                flg  = checkCondition(R.id.editTextFirstName,0,"First Name");
+                flg = checkCondition(R.id.editTextLastName,0,"Last Name");
+                flg = checkCondition(R.id.editTextGovernmentIDNumber,0,"Government ID Number");
+                flg = checkCondition(R.id.registration_editTextPassword,0,"Password");
+                flg = checkCondition(R.id.registration_editTextConfirmPassword,0,"Confirm Password");
+                flg = checkCondition(0,2,"Password does't match.");
                 textViewMessage.setText(_message);
+                if (flg)
+                {
+                    //send api with data
+                }
             }
 
         });
-
-
-
 
         Button cancelButton = findViewById(R.id.register_buttonCancel);
         cancelButton.setOnClickListener(new View.OnClickListener() {
@@ -88,31 +59,34 @@ public class RegistrationActivity extends AppCompatActivity {
 
     }
 
-    protected String getStringFromView(int ID,int kind){
-        String text = "";
+    protected boolean checkCondition(int ID,int kind,String wrongMsg){
+        boolean flg = true;
+        EditText editText;
         switch (kind){
             case 0:
-                EditText editText = findViewById(ID);
-                text = editText.getText().toString();
+                editText = findViewById(ID);
+                String text = editText.getText().toString();
+                if (text.isEmpty()){
+                    _message += wrongMsg+" is empty.\n";
+                    flg = false;
+                }
                 break;
             case 1:
-                CheckBox checkBox = findViewById(ID);
-                text = checkBox.getText().toString();
+                editText = findViewById(R.id.editTextEmail);
+                if (editText.getText().toString().contains("@")){
+                    _message += wrongMsg+"\n";
+                    flg = false;
+                }
                 break;
             case 2:
-                Spinner spinner = findViewById(ID);
-                text = spinner.getContext().toString();
+                EditText password1 = findViewById(R.id.registration_editTextPassword);
+                EditText password2 = findViewById(R.id.registration_editTextConfirmPassword);
+                if(!password1.getText().toString().equals(password2.getText().toString())){
+                    _message += wrongMsg+"\n";
+                    flg = false;
+                }
+                break;
         }
-
-        return text;
+        return flg;
     }
-
-    private void showEmpty(int ID,String name){
-        //final TextView textViewMessage = findViewById(R.id.textViewMessage);
-        //textViewMessage.setText(name+" is empty.");
-        _message += name+" is empty.\n";
-        EditText editText = findViewById(ID);
-        editText.setText(name+"*");
-    }
-
 }
