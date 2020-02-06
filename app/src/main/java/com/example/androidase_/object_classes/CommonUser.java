@@ -17,10 +17,7 @@ public class CommonUser {
     public JSONObject objToJson() {
         JSONObject json = new JSONObject();
         try {
-
-
-//Convert POJO to JSON
-
+            // Convert POJO to JSON
             json.put("EmailId", this.emailId);
             json.put("Password", this.password);
             json.put("GovernmentIdNumber", this.governmentIdNumber);
@@ -33,8 +30,18 @@ public class CommonUser {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        return json;
+    }
 
-
+    public JSONObject objToJson(String emailId, String password) {
+        JSONObject json = new JSONObject();
+        try {
+            // Convert POJO to JSON
+            json.put("EmailId", emailId);
+            json.put("Password", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return json;
     }
 

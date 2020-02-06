@@ -13,10 +13,19 @@ import com.example.androidase_.R;
 import com.example.androidase_.database.BaseDataHelper;
 import com.example.androidase_.mqtt.MqttActivity;
 import com.example.androidase_.mqtt.MqttMessageService;
+import com.example.androidase_.object_classes.CommonUser;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -38,8 +47,11 @@ public class LoginActivity extends AppCompatActivity {
                 String passwordString = password.getText().toString();
                 BaseDataHelper userDatabase = new BaseDataHelper(LoginActivity.this);
                 userDatabase.createTable(tableName, new ArrayList<String>(Arrays.asList(columnNames)));
+
                 HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
-                boolean doCredentialsMatch = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
+                CommonUser commonUser = new CommonUser();
+                boolean doCredentialsMatch = createThreadPostToLogin("", commonUser.objToJson(usernameString, passwordString));
+//                boolean doCredentialsMatch = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
                 if (doCredentialsMatch) {
                     Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
                     myIntent.putExtra("username", usernameString);
@@ -77,5 +89,36 @@ public class LoginActivity extends AppCompatActivity {
         return username.equals(u1) && password.equals(p1);
     }
 
+    public boolean createThreadPostToLogin(final String url, final JSONObject object) throws NullPointerException {
+        final boolean[] returnValue = new boolean[1];
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    returnValue[0] = postRestApi(url, object);
+                } finally {
+                    //empty
+                    returnValue[0] = true;
+                }
+            }
+        });
+        thread.start();
+        return returnValue[0];
+    }
 
+    private boolean postRestApi(String url, JSONObject object) throws NullPointerException {
+        final MediaType JSON = MediaType.get("application/json; charset=utf-8");
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = RequestBody.create(object.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        try {
+            client.newCall(request).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
 }

@@ -68,6 +68,8 @@ public class RegistrationActivity extends AppCompatActivity {
                     commonUser.setName(String.valueOf(R.id.editTextFirstName), String.valueOf(R.id.editTextLastName));
                     createThreadPostToSignup("", commonUser.objToJson());
                     Toast.makeText(getApplicationContext(), "yes", Toast.LENGTH_SHORT).show();
+                    Intent myIntent = new Intent(RegistrationActivity.this, LoginActivity.class);
+                    RegistrationActivity.this.startActivity(myIntent);
                 } else {
                     Toast.makeText(getApplicationContext(), "nope", Toast.LENGTH_SHORT).show();
                 }
@@ -81,12 +83,8 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent myIntent = new Intent(RegistrationActivity.this, LoginActivity.class);
                 RegistrationActivity.this.startActivity(myIntent);
-
-
             }
         });
-
-
     }
 
     protected boolean checkCondition(int ID, int kind, String wrongMsg) {
@@ -103,7 +101,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 break;
             case 1:
                 editText = findViewById(R.id.editTextEmail);
-                if (editText.getText().toString().contains("@")) {
+                if (!editText.getText().toString().contains("@")) {
                     _message += wrongMsg + "\n";
                     flg = false;
                 }
