@@ -79,6 +79,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button verificationButton = findViewById(R.id.buttonVerification);
+        verificationButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent myIntent = new Intent(MainActivity.this, VerificationActivity.class);
+                myIntent.putExtra("key", "test");
+                MainActivity.this.startActivity(myIntent);
+            }
+        });
+
+
+
 //        Button buttonHttp = this.findViewById(R.id.button_http);
 //        buttonHttp.setOnClickListener(new View.OnClickListener() {
 //            @Override

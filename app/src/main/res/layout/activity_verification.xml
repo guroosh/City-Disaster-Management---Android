@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.VerificationActivity">
+
+    <TextView
+        android:id="@+id/verification_TextViewLatitude"
+        android:layout_width="269dp"
+        android:layout_height="50dp"
+        android:text=""
+        tools:layout_editor_absoluteX="48dp"
+        tools:layout_editor_absoluteY="48dp" />
+
+    <TextView
+        android:id="@+id/verification_TextViewLongtitude"
+        android:layout_width="271dp"
+        android:layout_height="45dp"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/verification_TextViewVerifiedTime"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/verification_TextViewVerifiedBy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <CheckBox
+        android:id="@+id/verification_CheckBoxIsInfoTrue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Is the information true?"
+        android:checked="false" />
+
+    <EditText
+        android:id="@+id/verification_EditTextRadius"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text=""
+        android:hint="Radius of disaster"/>
+
+    <Spinner
+        android:id="@+id/verification_SpinnerScale"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/arrayScaleOfDisaster"/>
+
+    <Button
+        android:id="@+id/verification_buttonVerify"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Verify" />
+
+</LinearLayout>
