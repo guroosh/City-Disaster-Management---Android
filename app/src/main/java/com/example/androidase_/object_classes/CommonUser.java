@@ -5,7 +5,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class CommonUser {
-    public Name name;
+    public String firstName;
+    public String lastName;
     public String emailId;
     public String password;
     public String phoneNumber;
@@ -25,7 +26,12 @@ public class CommonUser {
             json.put("IsVolunteering", this.isVolunteering);
             json.put("GovernmentIdType", this.governmentIdType);
             json.put("VolunteeringField", this.volunteeringField);
-            json.put("Name", this.getNameString());
+
+            JSONObject nameJson = new JSONObject();
+            nameJson.put("FirstName", this.firstName);
+            nameJson.put("LastName", this.lastName);
+
+            json.put("Name", nameJson);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -44,18 +50,4 @@ public class CommonUser {
         }
         return json;
     }
-
-    public void setName(String firstName, String lastName) {
-        this.name.firstName = firstName;
-        this.name.lastName = lastName;
-    }
-
-    public String getNameString() {
-        return this.name.firstName + " " + this.name.lastName;
-    }
-}
-
-class Name {
-    public String firstName;
-    public String lastName;
 }
