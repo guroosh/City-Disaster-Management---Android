@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.androidase_.R;
-import com.example.androidase_.object_classes.CommonUser;
+import com.example.androidase_.object_classes.CommonUserPOJO;
 
 import org.json.JSONObject;
 
@@ -60,7 +60,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 //System.out.println(sin.isChecked());
                 textViewMessage.setText(_message);
                 if (flg) {
-                    CommonUser commonUser = new CommonUser();
+                    CommonUserPOJO commonUser = new CommonUserPOJO();
 
                     EditText emailId = findViewById(R.id.editTextEmail);
                     EditText password = findViewById(R.id.registration_editTextPassword);

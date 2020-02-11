@@ -35,6 +35,6 @@ public class ReportedDisaster {
         setLocation(new LatLng(100,200));
         //setRadius(1000);
         setTime("1/2/2020");
-        setVerifiedBy("Groosh");
+        setVerifiedBy("Guroosh");
     }
 }

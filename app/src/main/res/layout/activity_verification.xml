@@ -16,22 +16,26 @@
         tools:layout_editor_absoluteY="48dp" />
 
     <TextView
-        android:id="@+id/verification_TextViewLongtitude"
+        android:id="@+id/verification_TextViewLongitude"
         android:layout_width="271dp"
         android:layout_height="45dp"
         android:text="" />
 
     <TextView
-        android:id="@+id/verification_TextViewVerifiedTime"
-        android:layout_width="260dp"
-        android:layout_height="wrap_content"
+        android:id="@+id/verification_TextViewLandmark"
+        android:layout_width="271dp"
+        android:layout_height="45dp"
         android:text="" />
 
-    <TextView
-        android:id="@+id/verification_TextViewVerifiedBy"
+    <EditText
+        android:id="@+id/verification_EditTextLandmark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="" />
+        android:ems="10"
+        android:text=""
+        android:hint="Update landmark"
+        android:autofillHints="Testing auto fill" />
+
 
     <CheckBox
         android:id="@+id/verification_CheckBoxIsInfoTrue"
@@ -47,7 +51,8 @@
         android:ems="10"
         android:inputType="textPersonName"
         android:text=""
-        android:hint="Radius of disaster"/>
+        android:hint="Radius of disaster"
+        android:autofillHints="Testing auto fill" />
 
     <Spinner
         android:id="@+id/verification_SpinnerScale"
@@ -59,6 +64,6 @@
         android:id="@+id/verification_buttonVerify"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Verify" />
+        android:text="Submit verification details" />
 
 </LinearLayout>
