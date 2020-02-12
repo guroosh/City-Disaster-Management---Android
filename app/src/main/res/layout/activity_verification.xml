@@ -51,7 +51,7 @@
         android:ems="10"
         android:inputType="textPersonName"
         android:text=""
-        android:hint="Radius of disaster"
+        android:hint="Radius of disaster (in meters)*"
         android:autofillHints="Testing auto fill" />
 
     <Spinner

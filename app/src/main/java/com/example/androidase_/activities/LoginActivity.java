@@ -13,7 +13,7 @@ import com.example.androidase_.R;
 import com.example.androidase_.database.BaseDataHelper;
 import com.example.androidase_.mqtt.MqttActivity;
 import com.example.androidase_.mqtt.MqttMessageService;
-import com.example.androidase_.object_classes.CommonUser;
+import com.example.androidase_.object_classes.CommonUserPOJO;
 
 import org.json.JSONObject;
 
@@ -49,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
                 userDatabase.createTable(tableName, new ArrayList<String>(Arrays.asList(columnNames)));
 
                 HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
-                CommonUser commonUser = new CommonUser();
+                CommonUserPOJO commonUser = new CommonUserPOJO();
                 boolean doCredentialsMatch = createThreadPostToLogin("", commonUser.objToJson(usernameString, passwordString));
 //                boolean doCredentialsMatch = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
                 if (doCredentialsMatch) {

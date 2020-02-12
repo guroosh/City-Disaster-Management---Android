@@ -152,7 +152,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     } else {
                         a.runOnUiThread(new Runnable() {
                             public void run() {
-                                Toast.makeText(getApplicationContext(), "Some error happened while registration", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Server error while registration", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
