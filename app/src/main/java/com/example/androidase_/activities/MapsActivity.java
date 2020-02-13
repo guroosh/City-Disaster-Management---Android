@@ -52,6 +52,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static com.example.androidase_.drivers.MapsDriver.animateUsingBound;
@@ -64,7 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static ArrayList<Marker> markerListCurrentLocation;
     public static ArrayList<Marker> markerListDisaster;
     public static LatLng globalCurrentLocation;
-    public static ArrayList<LatLng> busStopList = new ArrayList<>();
+    public static HashMap<String, LatLng> busStopList = new HashMap<>();
     public static String API_KEY;
     public static String globalPotentialDisasterName;
     public static ArrayList<Circle> circleArrayList = new ArrayList<>();
@@ -196,17 +198,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapClick(LatLng latLng) {
                 LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
-//                Log.d("output42", bounds.northeast.latitude + ", " + bounds.northeast.longitude + "; " + bounds.southwest.latitude + ", "  + bounds.southwest.longitude);
-                for (LatLng busStop : busStopList) {
+                int countBusStopsOnScreen = 0;
+                ArrayList<String> busStopsOnScreen = new ArrayList<>();
+                for (Map.Entry<String, LatLng> entry : busStopList.entrySet()) {
+                    LatLng busStop = entry.getValue();
                     if (bounds.contains(busStop)) {
+                        countBusStopsOnScreen++;
+                        busStopsOnScreen.add(entry.getKey());
                         Log.d("output42", busStop.latitude + ", " + busStop.longitude);
                     } else {
                         Log.d("error42", busStop.latitude + ", " + busStop.longitude);
                     }
                 }
-                Toast.makeText(getApplicationContext(), "Moving: " + busStopList.size(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Moving: " + countBusStopsOnScreen + " / " + busStopList.size(), Toast.LENGTH_SHORT).show();
+                if (countBusStopsOnScreen <= 40)
+                {
+                    apiCallForRealTimeDetailsForBusStopOnScreen(busStopsOnScreen);
+                }
             }
         });
+    }
+
+    private void apiCallForRealTimeDetailsForBusStopOnScreen(ArrayList<String> busStopsOnScreen) {
+        HttpDriver.createThreadGetForRealTimeBusStopDetails(busStopsOnScreen, a);
     }
 
     private void createDummyLocation() throws NullPointerException {

@@ -1,8 +1,11 @@
 package com.example.androidase_.drivers;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
@@ -22,6 +25,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.MediaType;
@@ -105,20 +115,104 @@ public class HttpDriver {
         thread.start();
     }
 
+    public static void createThreadGetForRealTimeBusStopDetails(final ArrayList<String> busStopsOnScreen, final Activity a) {
+        final String[] result = new String[busStopsOnScreen.size()];
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int i = 0;
+                    for (String id : busStopsOnScreen) {
+                        result[i] = getRestApi("https://data.smartdublin.ie/cgi-bin/rtpi/realtimebusinformation?stopid=" + id);
+                        i++;
+                    }
+                } finally {
+                    simulateBuses(a, result);
+                }
+            }
+        });
+        thread.start();
+    }
+
+    private static void simulateBuses(Activity a, String[] s) {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");   // 13/02/2020 21:07:00
+        HashMap<String, Long> upcomingBuses = new HashMap<>();
+        HashMap<String, ArrayList<String>> groupByBusRoute = new HashMap<>();
+        for (String j : s) {
+            // for loop iterating over bus stops on screen
+            try {
+                JSONObject jsonObject = new JSONObject(j);
+                String busStop = jsonObject.getString("stopid");
+                int numberOfResults = jsonObject.getInt("numberofresults");
+                JSONArray results = jsonObject.getJSONArray("results");
+                for (int i = 0; i < numberOfResults; i++) {
+                    // for loop iterating over upcoming bus timings for each bus stop.
+                    JSONObject innerJSONObject = (JSONObject) results.get(i);
+                    String arrivalTime = innerJSONObject.getString("scheduledarrivaldatetime");
+                    Date arrivalDateTime = formatter.parse(arrivalTime);
+                    String busRoute = innerJSONObject.getString("route");
+                    if (!upcomingBuses.containsKey(busStop + "-" + busRoute)) {
+                        // todo: also check if the direction i the same (destination == destination for comapring the bus stops)
+                        upcomingBuses.put(busStop + "-" + busRoute, arrivalDateTime.getTime());
+                        Log.d("simulation42", busStop + ", " + arrivalDateTime.getTime() + ", " + busRoute);
+                    }
+                    if (!groupByBusRoute.containsKey(busRoute)) {
+                        groupByBusRoute.put(busRoute, new ArrayList<String>());
+                    }
+                    groupByBusRoute.get(busRoute).add(busStop);
+                }
+            } catch (JSONException | ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        long currentTime = System.currentTimeMillis();
+        for (Map.Entry<String, ArrayList<String>> entry : groupByBusRoute.entrySet()) {
+            ArrayList<String> busStops = entry.getValue();
+            String busRoute = entry.getKey();
+            for (int i = 0; i < busStops.size() - 1; i++) {
+                String stop1 = busStops.get(i);
+                String stop2 = busStops.get(i + 1);
+                String key1 = stop1 + "-" + busRoute;
+                String key2 = stop2 + "-" + busRoute;
+                long time1 = upcomingBuses.get(key1);
+                long time2 = upcomingBuses.get(key2);
+                if (time2 > currentTime && currentTime > time1) {
+                    LatLng pos1 = busStopList.get(stop1);
+                    LatLng pos2 = busStopList.get(stop2);
+                    double midLat = (pos1.latitude + pos2.latitude) / 2;
+                    double midLng = (pos1.longitude + pos2.longitude) / 2;
+                    BitmapDrawable bitmapDrawable = (BitmapDrawable) ContextCompat.getDrawable(a, R.drawable.bus_cartoon);
+                    assert bitmapDrawable != null;
+                    Bitmap bitmap = bitmapDrawable.getBitmap();
+                    Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+                    final MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(midLat, midLng));
+                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mMap.addMarker(markerOptions);
+                        }
+                    });
+                }
+            }
+        }
+    }
+
     private static void plotBusStopMarkers(String result, final Activity a, final GoogleMap mMap) {
         try {
             JSONArray jsonArray = new JSONArray(result);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String busStopId = (String) jsonObject.get("id");
                 String lat = (String) jsonObject.get("lat");
                 String lng = (String) jsonObject.get("lng");
-                busStopList.add(new LatLng(Double.parseDouble(lat), Double.parseDouble(lng)));
+                busStopList.put(busStopId, new LatLng(Double.parseDouble(lat), Double.parseDouble(lng)));
             }
             a.runOnUiThread(new Runnable() {
                 public void run() {
-                    for (LatLng b : busStopList) {
+                    for (Map.Entry<String, LatLng> entry : busStopList.entrySet()) {
                         MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.position(b);
+                        markerOptions.position(entry.getValue());
                         BitmapDrawable bitmapDrawable;
                         bitmapDrawable = (BitmapDrawable) ContextCompat.getDrawable(a.getApplicationContext(), R.drawable.yellow);
                         assert bitmapDrawable != null;
@@ -174,6 +268,7 @@ public class HttpDriver {
         });
     }
 
+
     private static String getRestApi(String url) throws NullPointerException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -207,4 +302,5 @@ public class HttpDriver {
         }
         return 404;
     }
+
 }
