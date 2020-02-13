@@ -51,7 +51,6 @@ public class LoginActivity extends AppCompatActivity {
                 HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
                 CommonUserPOJO commonUser = new CommonUserPOJO();
                 boolean doCredentialsMatch = createThreadPostToLogin("", commonUser.objToJson(usernameString, passwordString));
-//                boolean doCredentialsMatch = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
                 if (doCredentialsMatch) {
                     Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
                     myIntent.putExtra("username", usernameString);

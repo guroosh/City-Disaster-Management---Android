@@ -84,7 +84,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
 //                    Toast.makeText(getApplicationContext(), commonUser.objToJson().toString(), Toast.LENGTH_SHORT).show();
                     Log.d("OUTPUT42", commonUser.objToJson().toString());
-                    createThreadPostToSignup("http://10.6.38.11:8080/services/rs/registration/registerCu", commonUser.objToJson());
+                    createThreadPostToSignup("http://" + R.string.ip_address + "/services/rs/registration/registerCu", commonUser.objToJson());
                 } else {
                     Toast.makeText(getApplicationContext(), "Nope", Toast.LENGTH_SHORT).show();
                 }

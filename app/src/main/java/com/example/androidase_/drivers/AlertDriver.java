@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 
+import com.example.androidase_.R;
 import com.example.androidase_.object_classes.ReportedDisaster;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -41,7 +42,7 @@ public class AlertDriver {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        HttpDriver.createThreadPostDisaster("http://10.6.36.104:8080/services/ds/DisasterReport/reportDisaster", jsonObject, a);
+                        HttpDriver.createThreadPostDisaster("http://" + R.string.ip_address + "/services/ds/DisasterReport/reportDisaster", jsonObject, a);
 
                     }
                 });

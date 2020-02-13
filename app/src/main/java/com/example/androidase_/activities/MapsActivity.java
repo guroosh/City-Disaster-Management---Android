@@ -1,6 +1,7 @@
 package com.example.androidase_.activities;
 
 import androidx.fragment.app.FragmentActivity;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -30,6 +31,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -47,6 +49,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -174,6 +177,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         place.getId() + "&key=" +
                         API_KEY, place.getName(), a, mMap);
             }
+
             @Override
             public void onError(@NotNull Status status) {
                 // TODO: Handle the error.
@@ -183,10 +187,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
         createDummyLocation();
         HttpDriver.createThreadGetForBusStops(a, mMap);
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+
+            @Override
+            public void onMapClick(LatLng latLng) {
+                LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
+//                Log.d("output42", bounds.northeast.latitude + ", " + bounds.northeast.longitude + "; " + bounds.southwest.latitude + ", "  + bounds.southwest.longitude);
+                for (LatLng busStop : busStopList) {
+                    if (bounds.contains(busStop)) {
+                        Log.d("output42", busStop.latitude + ", " + busStop.longitude);
+                    } else {
+                        Log.d("error42", busStop.latitude + ", " + busStop.longitude);
+                    }
+                }
+                Toast.makeText(getApplicationContext(), "Moving: " + busStopList.size(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void createDummyLocation() throws NullPointerException {

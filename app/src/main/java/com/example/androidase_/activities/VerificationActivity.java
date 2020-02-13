@@ -49,16 +49,17 @@ public class VerificationActivity extends AppCompatActivity {
                     CheckBox isInfoTrue = findViewById(R.id.verification_CheckBoxIsInfoTrue);
                     EditText landmark = findViewById(R.id.verification_EditTextLandmark);
                     VerifyingDisasterPOJO verifyingDisasterPOJO = new VerifyingDisasterPOJO();
+                    verifyingDisasterPOJO.referenceId = "RD260599";
                     verifyingDisasterPOJO.verifiedBy = "CurrentUser";
                     verifyingDisasterPOJO.verifiedTime = String.valueOf(System.currentTimeMillis() / 1000);
                     verifyingDisasterPOJO.isInfoTrue = isInfoTrue.isChecked();
                     verifyingDisasterPOJO.landmark = landmark.getText().toString();
-                    verifyingDisasterPOJO.radius = radius.getText().toString();
+                    verifyingDisasterPOJO.radius = Double.parseDouble(radius.getText().toString());
                     verifyingDisasterPOJO.scale = scale.getSelectedItem().toString();
-                    verifyingDisasterPOJO.latitude = "current lat";
-                    verifyingDisasterPOJO.longitude = "current lng";
+                    verifyingDisasterPOJO.latitude = 12.43;
+                    verifyingDisasterPOJO.longitude = 12.43;
                     Log.d("OUTPUT42", verifyingDisasterPOJO.objToJson().toString());
-                    createThreadPostToVerify("", verifyingDisasterPOJO.objToJson());
+                    createThreadPostToVerify("http://" + R.string.ip_address + "/services/ds/disasterReport/verifiedDisaster", verifyingDisasterPOJO.objToJson());
                 } else {
                     Toast.makeText(getApplicationContext(), "Nope", Toast.LENGTH_SHORT).show();
                 }
