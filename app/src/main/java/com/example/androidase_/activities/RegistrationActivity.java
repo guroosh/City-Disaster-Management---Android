@@ -15,14 +15,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.androidase_.R;
-import com.example.androidase_.object_classes.CommonUserPOJO;
+import com.example.androidase_.object_classes.CommonUserRegistrationPOJO;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -60,7 +57,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 //System.out.println(sin.isChecked());
                 textViewMessage.setText(_message);
                 if (flg) {
-                    CommonUserPOJO commonUser = new CommonUserPOJO();
+                    CommonUserRegistrationPOJO commonUser = new CommonUserRegistrationPOJO();
 
                     EditText emailId = findViewById(R.id.editTextEmail);
                     EditText password = findViewById(R.id.registration_editTextPassword);
@@ -84,7 +81,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
 //                    Toast.makeText(getApplicationContext(), commonUser.objToJson().toString(), Toast.LENGTH_SHORT).show();
                     Log.d("OUTPUT42", commonUser.objToJson().toString());
-                    createThreadPostToSignup("http://" + R.string.ip_address + "/services/rs/registration/registerCu", commonUser.objToJson());
+                    createThreadPostToSignup("http://" + getResources().getString(R.string.ip_address) + "/services/rs/registration/registerCu", commonUser.objToJson());
                 } else {
                     Toast.makeText(getApplicationContext(), "Nope", Toast.LENGTH_SHORT).show();
                 }
@@ -152,7 +149,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     } else {
                         a.runOnUiThread(new Runnable() {
                             public void run() {
-                                Toast.makeText(getApplicationContext(), "Server error while registration", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Server error while registration: " + response[0] + "\n" + url, Toast.LENGTH_SHORT).show();
                             }
                         });
                     }

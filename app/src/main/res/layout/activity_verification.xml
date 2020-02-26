@@ -66,4 +66,10 @@
         android:layout_height="wrap_content"
         android:text="Submit verification details" />
 
+    <Button
+        android:id="@+id/verification_buttonMaps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Live Map" />
+
 </LinearLayout>

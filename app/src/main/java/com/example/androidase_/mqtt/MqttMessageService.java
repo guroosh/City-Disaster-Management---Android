@@ -81,19 +81,20 @@ public class MqttMessageService extends Service {
 
     @SuppressLint("SetTextI18n")
     private void setMessageNotification(@NonNull String topic, @NonNull String msg) {
-//        MqttActivity.mqttInfo.setText( "\n\n" + topic + " ---> " + msg);
-        showNotification(topic, msg);
-        AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext())
-                .setTitle("WARNING!!!!")
-                .setMessage("You are in a Disaster Zone!!!\nIts time to PANIC!!!")
-                .create();
-
-        Objects.requireNonNull(alertDialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        alertDialog.show();
+//        // MqttActivity.mqttInfo.setText( "\n\n" + topic + " ---> " + msg);
+        if (!topic.equals("default") || !msg.equals("null")) {
+            showNotification(topic, msg);
+        }
+//        AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext())
+//                .setTitle("WARNING!!!!")
+//                .setMessage("You are in a Disaster Zone!!!\nIts time to PANIC!!!")
+//                .create();
+//
+//        Objects.requireNonNull(alertDialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+//        alertDialog.show();
     }
 
-    void showNotification(String title, String message)
-    {
+    void showNotification(String title, String message) {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

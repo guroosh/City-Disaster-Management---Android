@@ -20,10 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.androidase_.R;
-import com.example.androidase_.mqtt.MqttActivity;
-import com.example.androidase_.mqtt.MqttMessageService;
-import com.example.androidase_.mqtt.MqttMessageServiceForMaps;
-import com.example.androidase_.mqtt.PahoMqttClient;
 import com.example.androidase_.object_classes.ReportedDisaster;
 import com.example.androidase_.drivers.AlertDriver;
 import com.example.androidase_.drivers.HttpDriver;

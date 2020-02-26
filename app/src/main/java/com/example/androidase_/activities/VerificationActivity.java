@@ -65,6 +65,15 @@ public class VerificationActivity extends AppCompatActivity {
                 }
             }
         });
+
+        Button goToMaps = findViewById(R.id.verification_buttonMaps);
+        goToMaps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(VerificationActivity.this, MapsActivity.class);
+                VerificationActivity.this.startActivity(myIntent);
+            }
+        });
     }
 
     public void createThreadPostToVerify(final String url, final JSONObject object) throws NullPointerException {

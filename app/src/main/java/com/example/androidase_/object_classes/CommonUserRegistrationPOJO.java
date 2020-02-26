@@ -4,7 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class CommonUserPOJO {
+public class CommonUserRegistrationPOJO {
     public String firstName;
     public String lastName;
     public String emailId;
