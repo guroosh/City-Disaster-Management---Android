@@ -95,7 +95,7 @@ public class VerificationActivity extends AppCompatActivity {
                     } else {
                         a.runOnUiThread(new Runnable() {
                             public void run() {
-                                Toast.makeText(getApplicationContext(), "Server error while verification", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Error while verification", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }

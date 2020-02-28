@@ -53,7 +53,6 @@ public class RegistrationActivity extends AppCompatActivity {
                         checkCondition(0, 2, "Password does't match.");
 
 
-
                 //System.out.println(sin.isChecked());
                 textViewMessage.setText(_message);
                 if (flg) {
@@ -131,27 +130,36 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public void createThreadPostToSignup(final String url, final JSONObject object) throws NullPointerException {
-        final int[] response = new int[1];
+        final Response[] response = new Response[1];
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     response[0] = postRestApi(url, object);
                 } finally {
-                    if (response[0] == 200) {
+                    if (response[0] == null) {
+                        Log.d("response42", "Connectivity error");
                         a.runOnUiThread(new Runnable() {
                             public void run() {
-                                Toast.makeText(getApplicationContext(), "Registration Successful\nLogin to enter", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Connectivity error", Toast.LENGTH_SHORT).show();
                             }
                         });
-                        Intent myIntent = new Intent(RegistrationActivity.this, MapsActivity.class);
-                        RegistrationActivity.this.startActivity(myIntent);
                     } else {
-                        a.runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "Server error while registration: " + response[0] + "\n" + url, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        if (response[0].code() == 200) {
+                            a.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "Registration Successful\nLogin to enter", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            Intent myIntent = new Intent(RegistrationActivity.this, MapsActivity.class);
+                            RegistrationActivity.this.startActivity(myIntent);
+                        } else {
+                            a.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "Server error while registration", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -159,10 +167,11 @@ public class RegistrationActivity extends AppCompatActivity {
         thread.start();
     }
 
-    private int postRestApi(String url, JSONObject object) throws NullPointerException {
+    private Response postRestApi(String url, JSONObject object) throws NullPointerException {
         final MediaType JSON = MediaType.parse("application/json");
         OkHttpClient client = new OkHttpClient();
         RequestBody body = RequestBody.create(object.toString(), JSON);
+        Response response = null;
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
@@ -171,11 +180,11 @@ public class RegistrationActivity extends AppCompatActivity {
                 .addHeader("Content-Type", "application/json")
                 .build();
         try {
-            Response response = client.newCall(request).execute();
-            return response.code();
+            response = client.newCall(request).execute();
+            return response;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return 404;
+        return response;
     }
 }

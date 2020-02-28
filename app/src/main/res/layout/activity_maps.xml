@@ -28,7 +28,7 @@
 
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="130dp"
         android:layout_alignParentBottom="true">
 
         <LinearLayout
@@ -39,8 +39,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
+                android:orientation="vertical">
                 <Button
                     android:id="@+id/button_report_disaster"
                     android:layout_width="wrap_content"
@@ -55,7 +54,21 @@
                     android:text="Report Disaster"
                     android:textColor="@android:color/white"
                     tools:ignore="HardcodedText" />
-
+                <Button
+                    android:id="@+id/button_get_direction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/round_button_get_direction"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:text="Get Direction"
+                    android:textColor="@android:color/white"
+                    tools:ignore="HardcodedText"
+                    android:visibility="invisible"/>
             </LinearLayout>
         </LinearLayout>
 

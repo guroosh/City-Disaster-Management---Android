@@ -20,14 +20,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.androidase_.R;
+import com.example.androidase_.drivers.MapsDriver;
 import com.example.androidase_.object_classes.ReportedDisaster;
-import com.example.androidase_.drivers.AlertDriver;
+import com.example.androidase_.ReportingDisaster.DisasterReportAlert;
 import com.example.androidase_.drivers.HttpDriver;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -43,22 +42,23 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static com.example.androidase_.Navigation.RouteBetweenTwoPoints.createThreadGetForRouteBetweenTwoLocations;
 import static com.example.androidase_.drivers.MapsDriver.animateUsingBound;
-import static com.example.androidase_.mqtt.MqttActivity.MQTT_BROKER_URL;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
 
     public static GoogleMap mMap;
-    public static String previousRoute = "";
+    public static String previousExitRoute = "";
+    public static String previousRouteBetweenTwoPoints = "";
     public static ArrayList<Marker> markerListCurrentLocation;
     public static ArrayList<Marker> markerListDisaster;
     public static LatLng globalCurrentLocation;
@@ -66,13 +66,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static String API_KEY;
     public static String globalPotentialDisasterName;
     public static ArrayList<Circle> circleArrayList = new ArrayList<>();
-    public static ArrayList<Polyline> polylines = new ArrayList<>();
+    public static ArrayList<Polyline> exitRoutePolylines = new ArrayList<>();
+    public static ArrayList<Polyline> routeBetweenTwoPointsPolylines = new ArrayList<>();
     public static String username;
+    public static LatLng searchedDestination;
+    public static LatLng midPointForCreatingDummyLocation;
+    public static LatLng circleCenter;
+    public static double circleRadius;
 
     boolean isStartCurrentLocationSet = false;
     Activity a = this;
-    AlertDriver alertDriver;
+    DisasterReportAlert disasterReportAlert;
     ReportedDisaster reportedDisaster;
+    public Button getDirectionsBetweenTwoLocations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,12 +148,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     isDisasterOnUserLocation = true;
                 }
                 reportedDisaster = new ReportedDisaster();
-                alertDriver = new AlertDriver();
-                alertDriver.createAlert(MapsActivity.this, "Are you sure to report disaster at " + potentialDisasterName + "?", "Yes", "No", tempLocation, reportedDisaster, isDisasterOnUserLocation, a);
+                disasterReportAlert = new DisasterReportAlert();
+                disasterReportAlert.createAlert(MapsActivity.this, "Are you sure to report disaster at " + potentialDisasterName + "?", "Yes", "No", tempLocation, reportedDisaster, isDisasterOnUserLocation, a);
             }
         });
 
-//        //Option 1 to start Mqtt listener
+        getDirectionsBetweenTwoLocations = findViewById(R.id.button_get_direction);
+        getDirectionsBetweenTwoLocations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = "https://maps.googleapis.com/maps/api/directions/json?" +
+                        "origin=" + globalCurrentLocation.latitude + "," + globalCurrentLocation.longitude +
+                        "&destination=" + searchedDestination.latitude + "," + searchedDestination.longitude +
+                        "&key=" + API_KEY;
+                createThreadGetForRouteBetweenTwoLocations(url, a);
+            }
+        });
+
+//       //Option 1 to start Mqtt listener
 //        PahoMqttClient pahoMqttClient = new PahoMqttClient();
 //        MqttAndroidClient client = pahoMqttClient.getMqttClient(getApplicationContext(), MQTT_BROKER_URL, 0);
 
@@ -174,6 +192,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 HttpDriver.createThreadGetForLocation("https://maps.googleapis.com/maps/api/place/details/json?placeid=" +
                         place.getId() + "&key=" +
                         API_KEY, place.getName(), a, mMap);
+                getDirectionsBetweenTwoLocations.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -188,6 +207,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
         createDummyLocation();
+        MapsDriver.initiateRandomCircleCreation(new ReportedDisaster(), a);
         HttpDriver.createThreadGetForBusStops(a, mMap);
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
@@ -207,8 +227,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
                 Toast.makeText(getApplicationContext(), "Moving: " + countBusStopsOnScreen + " / " + busStopList.size(), Toast.LENGTH_SHORT).show();
-                if (countBusStopsOnScreen <= 40)
-                {
+                if (countBusStopsOnScreen <= 40) {
                     apiCallForRealTimeDetailsForBusStopOnScreen(busStopsOnScreen);
                 }
             }

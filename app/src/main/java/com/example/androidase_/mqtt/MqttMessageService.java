@@ -87,7 +87,7 @@ public class MqttMessageService extends Service {
         }
 //        AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext())
 //                .setTitle("WARNING!!!!")
-//                .setMessage("You are in a Disaster Zone!!!\nIts time to PANIC!!!")
+//                .setMessage("You are in a DisasterReport Zone!!!\nIts time to PANIC!!!")
 //                .create();
 //
 //        Objects.requireNonNull(alertDialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);

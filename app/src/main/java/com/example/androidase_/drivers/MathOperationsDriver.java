@@ -1,4 +1,4 @@
-package com.example.androidase_.other_classes;
+package com.example.androidase_.drivers;
 
 import com.example.androidase_.object_classes.ReturnShift;
 import com.google.android.gms.maps.model.LatLng;
@@ -8,7 +8,7 @@ import java.util.Random;
 
 import static com.example.androidase_.activities.MapsActivity.globalCurrentLocation;
 
-public class MathOperations {
+public class MathOperationsDriver {
 
     public static double measureDistanceInMeters(double lat1, double lon1, double lat2, double lon2) {
         double R = 6378.137; // Radius of earth in KM
@@ -80,7 +80,7 @@ public class MathOperations {
         double lng1 = globalCurrentLocation.longitude;
         double lat1 = globalCurrentLocation.latitude;
         LatLng randomExitPoint = new LatLng(lat, lng);
-        if (MathOperations.measureDistanceInMeters(lat, lng, lat1, lng1) <= radius) {
+        if (MathOperationsDriver.measureDistanceInMeters(lat, lng, lat1, lng1) <= radius) {
             return getRandomExitPoint(radius);
         } else {
             return randomExitPoint;

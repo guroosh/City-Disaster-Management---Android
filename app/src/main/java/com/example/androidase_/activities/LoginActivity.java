@@ -2,12 +2,14 @@ package com.example.androidase_.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.androidase_.R;
 import com.example.androidase_.database.BaseDataHelper;
@@ -29,6 +31,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
+
+    Activity a = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,27 +98,51 @@ public class LoginActivity extends AppCompatActivity {
                 } finally {
                     Log.d("response42", "after response");
                     try {
-                        String returnValueString = returnValue[0].body().string();
-                        Log.d("response42", returnValueString);
-                        String jsonData = returnValueString;
-                        JSONObject jsonObject = new JSONObject(jsonData);
-                        Log.d("response42", jsonObject.getString("referenceCode"));
-                        commonUserAfterLoginPOJO[0] = new CommonUserAfterLoginPOJO();
-                        commonUserAfterLoginPOJO[0].accessToken = jsonObject.getString("accessToken");
-                        commonUserAfterLoginPOJO[0].isCommonUser = jsonObject.getBoolean("isCommonUser");
-                        commonUserAfterLoginPOJO[0].referenceCode = jsonObject.getString("referenceCode");
-                        boolean isCommonUser = commonUserAfterLoginPOJO[0].isCommonUser;
-                        if (isCommonUser) {
-                            Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
-//                            myIntent.putExtra("username", usernameString);
-                            LoginActivity.this.startActivity(myIntent);
+                        if (returnValue[0] == null) {
+                            Log.d("response42", "Connectivity error");
+                            a.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "Connectivity error", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         } else {
-                            Intent myIntent = new Intent(LoginActivity.this, VerificationActivity.class);
+                            if (returnValue[0].code() == 200) {
+                                String returnValueString = returnValue[0].body().string();
+                                Log.d("response42", returnValueString);
+                                String jsonData = returnValueString;
+                                JSONObject jsonObject = new JSONObject(jsonData);
+                                Log.d("response42", jsonObject.getString("referenceCode"));
+                                commonUserAfterLoginPOJO[0] = new CommonUserAfterLoginPOJO();
+                                commonUserAfterLoginPOJO[0].accessToken = jsonObject.getString("accessToken");
+                                commonUserAfterLoginPOJO[0].isCommonUser = jsonObject.getBoolean("isCommonUser");
+                                commonUserAfterLoginPOJO[0].referenceCode = jsonObject.getString("referenceCode");
+                                boolean isCommonUser = commonUserAfterLoginPOJO[0].isCommonUser;
+                                if (isCommonUser) {
+                                    Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
 //                            myIntent.putExtra("username", usernameString);
-                            LoginActivity.this.startActivity(myIntent);
+                                    LoginActivity.this.startActivity(myIntent);
+                                } else {
+                                    Intent myIntent = new Intent(LoginActivity.this, VerificationActivity.class);
+//                            myIntent.putExtra("username", usernameString);
+                                    LoginActivity.this.startActivity(myIntent);
+                                }
+                            } else {
+                                Log.d("response42", "Server error");
+                                a.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Server error while login", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
                         }
                     } catch (IOException | JSONException e) {
                         e.printStackTrace();
+                        Log.d("response42", "Error while converting JSON Response to string");
+                        a.runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "Server error while login", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 }
             }

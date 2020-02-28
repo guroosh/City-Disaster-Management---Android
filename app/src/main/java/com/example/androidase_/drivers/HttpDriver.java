@@ -5,12 +5,12 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
 import com.example.androidase_.R;
+import com.example.androidase_.ReportingDisaster.DisasterReport;
+import com.example.androidase_.object_classes.ReportedDisaster;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -25,7 +25,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,7 +40,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static com.example.androidase_.activities.MapsActivity.*;
-import static com.example.androidase_.drivers.MapsDriver.renderRoute;
 
 public class HttpDriver {
 
@@ -60,30 +58,6 @@ public class HttpDriver {
         thread.start();
     }
 
-    static void createThreadPostDisaster(final String url, final JSONObject object, final Activity a) throws NullPointerException {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int code = 404;
-                try {
-                    code = postRestApi(url, object, a);
-                } finally {
-                    final int finalCode = code;
-                    a.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (finalCode == 200) {
-                                Toast.makeText(a, "Disaster Reported Successfully", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(a, String.valueOf(finalCode), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
-            }
-        });
-        thread.start();
-    }
 
     public static void createThreadGetForLocation(final String url, final String potentialDisasterName, final Activity a, final GoogleMap mMap) {
         final String[] result = new String[1];
@@ -93,27 +67,14 @@ public class HttpDriver {
                 try {
                     result[0] = getRestApi(url);
                 } finally {
-                    placeDisasterMarker(result[0], a, mMap, potentialDisasterName);
+                    placeSearchedLocationMarker(result[0], a, mMap, potentialDisasterName);
                 }
             }
         });
         thread.start();
     }
 
-    static void createThreadGetForRoute(final String url, final Activity a) {
-        final String[] result = new String[1];
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    result[0] = getRestApi(url);
-                } finally {
-                    plotRoute(a, result[0]);
-                }
-            }
-        });
-        thread.start();
-    }
+
 
     public static void createThreadGetForRealTimeBusStopDetails(final ArrayList<String> busStopsOnScreen, final Activity a) {
         final String[] result = new String[busStopsOnScreen.size()];
@@ -219,7 +180,9 @@ public class HttpDriver {
                         Bitmap bitmap = bitmapDrawable.getBitmap();
                         Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 20, 20, false);
                         markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
-                        Marker marker = mMap.addMarker(markerOptions);
+                        /* START: code to add bus stops, do not remove */
+                        /* Marker marker = mMap.addMarker(markerOptions); */
+                        /* END */
                     }
                 }
             });
@@ -228,12 +191,13 @@ public class HttpDriver {
         }
     }
 
-    private static void placeDisasterMarker(String result, final Activity a, final GoogleMap mMap, final String potentialDisasterName) {
+    private static void placeSearchedLocationMarker(String result, final Activity a, final GoogleMap mMap, final String potentialDisasterName) {
         try {
             JSONObject jsonObject = new JSONObject(result);
             String lat = jsonObject.getJSONObject("result").getJSONObject("geometry").getJSONObject("location").getString("lat");
             String lng = jsonObject.getJSONObject("result").getJSONObject("geometry").getJSONObject("location").getString("lng");
             final LatLng finalLocation = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+            searchedDestination = finalLocation;
             a.runOnUiThread(new Runnable() {
                 public void run() {
                     Marker marker = mMap.addMarker(new MarkerOptions().position(finalLocation));
@@ -259,17 +223,9 @@ public class HttpDriver {
         }
     }
 
-    private static void plotRoute(Activity a, final String result) {
-        previousRoute = result;
-        a.runOnUiThread(new Runnable() {
-            public void run() {
-                renderRoute(result);
-            }
-        });
-    }
 
 
-    private static String getRestApi(String url) throws NullPointerException {
+    public static String getRestApi(String url) throws NullPointerException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
@@ -283,10 +239,11 @@ public class HttpDriver {
         }
     }
 
-    private static int postRestApi(String url, JSONObject object, Activity a) throws NullPointerException {
+    public static Response postRestApi(String url, JSONObject object, Activity a) throws NullPointerException {
         final MediaType JSON = MediaType.parse("application/json");
         OkHttpClient client = new OkHttpClient();
         RequestBody body = RequestBody.create(object.toString(), JSON);
+        Response response = null;
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
@@ -295,12 +252,12 @@ public class HttpDriver {
                 .addHeader("Content-Type", "application/json")
                 .build();
         try {
-            Response response = client.newCall(request).execute();
-            return response.code();
+            response = client.newCall(request).execute();
+            return response;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return 404;
+        return response;
     }
 
 }
