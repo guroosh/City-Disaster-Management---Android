@@ -59,6 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static GoogleMap mMap;
     public static String previousExitRoute = "";
     public static String previousRouteBetweenTwoPoints = "";
+    public static String previousRouteBetweenThreePoints = "";
     public static ArrayList<Marker> markerListCurrentLocation;
     public static ArrayList<Marker> markerListDisaster;
     public static LatLng globalCurrentLocation;
@@ -68,9 +69,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static ArrayList<Circle> circleArrayList = new ArrayList<>();
     public static ArrayList<Polyline> exitRoutePolylines = new ArrayList<>();
     public static ArrayList<Polyline> routeBetweenTwoPointsPolylines = new ArrayList<>();
+    public static ArrayList<Polyline> routeBetweenThreePointsPolylines = new ArrayList<>();
     public static String username;
     public static LatLng searchedDestination;
-    public static LatLng midPointForCreatingDummyLocation;
     public static LatLng circleCenter;
     public static double circleRadius;
 
