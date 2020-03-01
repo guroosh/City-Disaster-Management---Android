@@ -2,6 +2,7 @@ package com.example.androidase_.Navigation;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.util.Log;
 
 import com.example.androidase_.other_classes.PathJSONParser;
 import com.google.android.gms.maps.model.LatLng;
@@ -17,52 +18,57 @@ import java.util.Objects;
 
 import static com.example.androidase_.activities.MapsActivity.API_KEY;
 import static com.example.androidase_.activities.MapsActivity.mMap;
-import static com.example.androidase_.activities.MapsActivity.previousRouteBetweenThreePoints;
+//import static com.example.androidase_.activities.MapsActivity.previousRouteBetweenThreePoints;
+//import static com.example.androidase_.activities.MapsActivity.previousRouteBetweenTwoPoints;
 import static com.example.androidase_.activities.MapsActivity.routeBetweenThreePointsPolylines;
 import static com.example.androidase_.drivers.HttpDriver.getRestApi;
 
 public class RouteBetweenThreePoints {
-    public static void initialiseProcessForRouteBetweenThreePoints(double lat1, double lng1, double lat2, double lng2, double lat3, double lng3, Activity a) {
-        String url1 = "https://maps.googleapis.com/maps/api/directions/json?" +
-                "origin=" + lat1 + "," + lng1 +
-                "&destination=" + lat2 + "," + lng2 +
-                "&key=" + API_KEY;
-        String url2 = "https://maps.googleapis.com/maps/api/directions/json?" +
-                "origin=" + lat2 + "," + lng2 +
-                "&destination=" + lat3 + "," + lng3 +
-                "&key=" + API_KEY;
-        createThreadGetForRouteBetweenThreeLocations(url1, url2, a);
+    public static void initialiseProcessForRouteBetweenThreePoints(ArrayList<LatLng> points, Activity a) {
+        ArrayList<String> urls = new ArrayList<>();
+        for (int i = 0; i < points.size() - 1; i++) {
+            LatLng latLng1 = points.get(i);
+            LatLng latLng2 = points.get(i + 1);
+            String url = "https://maps.googleapis.com/maps/api/directions/json?" +
+                    "origin=" + latLng1.latitude + "," + latLng1.longitude +
+                    "&destination=" + latLng2.latitude + "," + latLng2.longitude +
+                    "&key=" + API_KEY;
+            urls.add(url);
+        }
+        Log.d("debug42", String.valueOf(urls.size()));
+        createThreadGetForRouteBetweenThreeLocations(urls, a);
     }
 
-    public static void createThreadGetForRouteBetweenThreeLocations(final String url1, final String url2, final Activity a) {
-        final String[] result = new String[2];
+    public static void createThreadGetForRouteBetweenThreeLocations(final ArrayList<String> urls, final Activity a) {
+        final String[] results = new String[urls.size()];
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    result[0] = getRestApi(url1);
-                } finally {
-                    try {
-                        result[1] = getRestApi(url2);
-                    } finally {
-                        a.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                plotRouteBetweenThreeLocations(result[0], result[1], a);
-                            }
-                        });
+                    for (int i = 0; i < urls.size(); i++) {
+                        String url = urls.get(i);
+                        results[i] = getRestApi(url);
                     }
+                } finally {
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            plotRouteBetweenThreeLocations(results, a);
+                        }
+                    });
                 }
             }
         });
         thread.start();
     }
 
-    private static void plotRouteBetweenThreeLocations(String routeJson1, String routeJson2, Activity a) {
+    private static void plotRouteBetweenThreeLocations(String[] routes, Activity a) {
         deleteOldRoute();
-        previousRouteBetweenThreePoints = routeJson1 + routeJson2;
-        renderRouteBetweenTwoLocations(routeJson1, a);
-        renderRouteBetweenTwoLocations(routeJson2, a);
+//        previousRouteBetweenThreePoints = "";
+        for (String route : routes) {
+//            previousRouteBetweenTwoPoints += route;
+            renderRouteBetweenTwoLocations(route, a);
+        }
     }
 
     private static void renderRouteBetweenTwoLocations(String jsonData, Activity a) {
@@ -99,11 +105,11 @@ public class RouteBetweenThreePoints {
     }
 
     private static void deleteOldRoute() {
-        if (!previousRouteBetweenThreePoints.equals("")) {
+//        if (!previousRouteBetweenThreePoints.equals("")) {
             for (Polyline p : routeBetweenThreePointsPolylines) {
                 p.remove();
             }
             routeBetweenThreePointsPolylines.clear();
-        }
+//        }
     }
 }

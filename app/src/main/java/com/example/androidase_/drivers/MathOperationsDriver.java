@@ -86,5 +86,12 @@ public class MathOperationsDriver {
             return randomExitPoint;
         }
     }
+
+    public static double minOfTwoDoubles(double d1, double d2) {
+        if (d1 < d2) {
+            return d1;
+        }
+        return d2;
+    }
 }
 

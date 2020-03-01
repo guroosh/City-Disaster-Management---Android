@@ -57,9 +57,6 @@ import static com.example.androidase_.drivers.MapsDriver.animateUsingBound;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
 
     public static GoogleMap mMap;
-    public static String previousExitRoute = "";
-    public static String previousRouteBetweenTwoPoints = "";
-    public static String previousRouteBetweenThreePoints = "";
     public static ArrayList<Marker> markerListCurrentLocation;
     public static ArrayList<Marker> markerListDisaster;
     public static LatLng globalCurrentLocation;

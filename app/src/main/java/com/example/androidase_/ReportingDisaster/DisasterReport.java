@@ -28,7 +28,7 @@ import static com.example.androidase_.activities.MapsActivity.API_KEY;
 import static com.example.androidase_.activities.MapsActivity.globalCurrentLocation;
 import static com.example.androidase_.activities.MapsActivity.mMap;
 import static com.example.androidase_.activities.MapsActivity.exitRoutePolylines;
-import static com.example.androidase_.activities.MapsActivity.previousExitRoute;
+//import static com.example.androidase_.activities.MapsActivity.previousExitRoute;
 import static com.example.androidase_.activities.MapsActivity.username;
 import static com.example.androidase_.drivers.MapsDriver.changeCameraBound;
 import static com.example.androidase_.drivers.MapsDriver.drawCircle;
@@ -109,7 +109,7 @@ public class DisasterReport {
 
     private static void plotExitRoute(Activity a, final String result) {
         deleteOldRoute();
-        previousExitRoute = result;
+//        previousExitRoute = result;
         renderExitRoute(result);
     }
 
@@ -170,11 +170,11 @@ public class DisasterReport {
     }
 
     private static void deleteOldRoute() throws NullPointerException {
-        if (!previousExitRoute.equals("")) {
+//        if (!previousExitRoute.equals("")) {
             for (Polyline p : exitRoutePolylines) {
                 p.remove();
             }
             exitRoutePolylines.clear();
-        }
+//        }
     }
 }
