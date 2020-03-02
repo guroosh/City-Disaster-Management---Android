@@ -51,7 +51,7 @@ public class HttpDriver {
                 try {
                     result[0] = getRestApi("https://wzk9mu5t95.execute-api.us-east-1.amazonaws.com/Prod");
                 } finally {
-                    plotBusStopMarkers(result[0], a, mMap);
+                    plotAllBusStopMarkers(result[0], a, mMap);
                 }
             }
         });
@@ -159,7 +159,7 @@ public class HttpDriver {
         }
     }
 
-    private static void plotBusStopMarkers(String result, final Activity a, final GoogleMap mMap) {
+    private static void plotAllBusStopMarkers(String result, final Activity a, final GoogleMap mMap) {
         try {
             JSONArray jsonArray = new JSONArray(result);
             for (int i = 0; i < jsonArray.length(); i++) {

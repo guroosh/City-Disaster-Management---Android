@@ -1,18 +1,28 @@
 package com.example.androidase_.drivers;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 
+import androidx.core.content.ContextCompat;
+
+import com.example.androidase_.R;
 import com.example.androidase_.object_classes.ReportedDisaster;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static com.example.androidase_.activities.MapsActivity.*;
@@ -92,4 +102,25 @@ public class MapsDriver {
         /* END */
     }
 
+    public static void plotBusStopsOnScreen(HashMap<String, LatLng> busStopsOnScreen, Activity a) {
+        for (Map.Entry<String, LatLng> entry : busStopsOnScreen.entrySet()) {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(entry.getValue());
+            BitmapDrawable bitmapDrawable;
+            bitmapDrawable = (BitmapDrawable) ContextCompat.getDrawable(a.getApplicationContext(), R.drawable.yellow);
+            assert bitmapDrawable != null;
+            Bitmap bitmap = bitmapDrawable.getBitmap();
+            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 20, 20, false);
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+            Marker marker = mMap.addMarker(markerOptions);
+            busStopsOnScreenMarkers.add(marker);
+        }
+    }
+
+    public static void deleteBusStopsPreviouslyOnScreen() {
+        for (Marker m : busStopsOnScreenMarkers) {
+            m.remove();
+        }
+        busStopsOnScreenMarkers.clear();
+    }
 }

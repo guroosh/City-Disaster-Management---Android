@@ -63,10 +63,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static HashMap<String, LatLng> busStopList = new HashMap<>();
     public static String API_KEY;
     public static String globalPotentialDisasterName;
+
+    //These lists are to keep track of icons on the map and remove them if necessary
     public static ArrayList<Circle> circleArrayList = new ArrayList<>();
     public static ArrayList<Polyline> exitRoutePolylines = new ArrayList<>();
     public static ArrayList<Polyline> routeBetweenTwoPointsPolylines = new ArrayList<>();
     public static ArrayList<Polyline> routeBetweenThreePointsPolylines = new ArrayList<>();
+    public static ArrayList<Marker> busStopsOnScreenMarkers = new ArrayList<>();
+
     public static String username;
     public static LatLng searchedDestination;
     public static LatLng circleCenter;
@@ -207,27 +211,64 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         createDummyLocation();
         MapsDriver.initiateRandomCircleCreation(new ReportedDisaster(), a);
         HttpDriver.createThreadGetForBusStops(a, mMap);
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
+
+        mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
-            public void onMapClick(LatLng latLng) {
+            public void onCameraMoveStarted(int i) {
+
+            }
+        });
+
+        mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+            @Override
+            public void onCameraIdle() {
                 LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
-                int countBusStopsOnScreen = 0;
-                ArrayList<String> busStopsOnScreen = new ArrayList<>();
+                LatLng southWest = bounds.southwest;
+                LatLng northEast = bounds.northeast;
+                double screenWidth = Math.abs(northEast.longitude - southWest.longitude);
+                LatLng newSouthWest = new LatLng(southWest.latitude - screenWidth, southWest.longitude - screenWidth);
+                LatLng newNorthEast = new LatLng(northEast.latitude + screenWidth, northEast.longitude + screenWidth);
+                bounds = new LatLngBounds(newSouthWest, newNorthEast);
+
+                // code for plotting bus stops on screen
+                HashMap<String, LatLng> busStopsOnScreenMap = new HashMap<>();
                 for (Map.Entry<String, LatLng> entry : busStopList.entrySet()) {
                     LatLng busStop = entry.getValue();
                     if (bounds.contains(busStop)) {
-                        countBusStopsOnScreen++;
-                        busStopsOnScreen.add(entry.getKey());
-                        Log.d("output42", busStop.latitude + ", " + busStop.longitude);
-                    } else {
-                        Log.d("error42", busStop.latitude + ", " + busStop.longitude);
+                        busStopsOnScreenMap.put(entry.getKey(), entry.getValue());
                     }
                 }
-                Toast.makeText(getApplicationContext(), "Moving: " + countBusStopsOnScreen + " / " + busStopList.size(), Toast.LENGTH_SHORT).show();
-                if (countBusStopsOnScreen <= 40) {
-                    apiCallForRealTimeDetailsForBusStopOnScreen(busStopsOnScreen);
+                MapsDriver.deleteBusStopsPreviouslyOnScreen();
+                if (mMap.getCameraPosition().zoom > 13) {
+                    MapsDriver.plotBusStopsOnScreen(busStopsOnScreenMap, a);
                 }
+                Log.d("camera42", String.valueOf(mMap.getCameraPosition().zoom));
+            }
+        });
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
+
+                /* coded for simulating buses based on bus stops on screen */
+//                int countBusStopsOnScreen = 0;
+//                ArrayList<String> busStopsOnScreenList = new ArrayList<>();
+//                for (Map.Entry<String, LatLng> entry : busStopList.entrySet()) {
+//                    LatLng busStop = entry.getValue();
+//                    if (bounds.contains(busStop)) {
+//                        countBusStopsOnScreen++;
+//                        busStopsOnScreenList.add(entry.getKey());
+//                        Log.d("output42", busStop.latitude + ", " + busStop.longitude);
+//                    } else {
+//                        Log.d("error42", busStop.latitude + ", " + busStop.longitude);
+//                    }
+//                }
+//                Toast.makeText(getApplicationContext(), "Moving: " + countBusStopsOnScreen + " / " + busStopList.size(), Toast.LENGTH_SHORT).show();
+//                if (countBusStopsOnScreen <= 40) {
+//                    apiCallForRealTimeDetailsForBusStopOnScreen(busStopsOnScreenList);
+//                }
             }
         });
     }

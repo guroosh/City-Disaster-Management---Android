@@ -105,11 +105,9 @@ public class RouteBetweenThreePoints {
     }
 
     private static void deleteOldRoute() {
-//        if (!previousRouteBetweenThreePoints.equals("")) {
             for (Polyline p : routeBetweenThreePointsPolylines) {
                 p.remove();
             }
             routeBetweenThreePointsPolylines.clear();
-//        }
     }
 }
