@@ -1,5 +1,6 @@
 package com.example.androidase_.activities;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
@@ -7,7 +8,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -67,6 +70,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //These lists are to keep track of icons on the map and remove them if necessary
     public static ArrayList<Circle> circleArrayList = new ArrayList<>();
     public static ArrayList<Polyline> exitRoutePolylines = new ArrayList<>();
+    public static ArrayList<Polyline> fireBrigadeRoutePolylines = new ArrayList<>();
+    public static ArrayList<Polyline> policeStationRoutePolylines = new ArrayList<>();
     public static ArrayList<Polyline> routeBetweenTwoPointsPolylines = new ArrayList<>();
     public static ArrayList<Polyline> routeBetweenThreePointsPolylines = new ArrayList<>();
     public static ArrayList<Marker> busStopsOnScreenMarkers = new ArrayList<>();
@@ -82,10 +87,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ReportedDisaster reportedDisaster;
     public Button getDirectionsBetweenTwoLocations;
 
+    public static ArrayList<LatLng> fireStationsList = new ArrayList<>();
+    public static ArrayList<LatLng> policeStationsList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
@@ -209,6 +219,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
         createDummyLocation();
+        updateFireStationsListAndUI();
+        updatePoliceStationsListAndUI();
         MapsDriver.initiateRandomCircleCreation(new ReportedDisaster(), a);
         HttpDriver.createThreadGetForBusStops(a, mMap);
 
@@ -241,7 +253,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 MapsDriver.deleteBusStopsPreviouslyOnScreen();
                 if (mMap.getCameraPosition().zoom > 13) {
-                    MapsDriver.plotBusStopsOnScreen(busStopsOnScreenMap, a);
+//                    MapsDriver.plotBusStopsOnScreen(busStopsOnScreenMap, a);
                 }
                 Log.d("camera42", String.valueOf(mMap.getCameraPosition().zoom));
             }
@@ -271,6 +283,68 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                }
             }
         });
+    }
+
+    private void updatePoliceStationsListAndUI() {
+        policeStationsList.add(new LatLng(53.61437815,-6.191052919));
+        policeStationsList.add(new LatLng(53.57959038,-6.10696161));
+        policeStationsList.add(new LatLng(53.52343539,-6.167335346));
+        policeStationsList.add(new LatLng(53.45110927,-6.151897022));
+        policeStationsList.add(new LatLng(53.45606714,-6.221164734));
+        policeStationsList.add(new LatLng(53.42977837,-6.245041004));
+        policeStationsList.add(new LatLng(53.38735506,-6.068977549));
+        policeStationsList.add(new LatLng(53.56705171,-6.383869161));
+        policeStationsList.add(new LatLng(53.38978396,-6.380770745));
+        policeStationsList.add(new LatLng(53.51138166,-6.396980308));
+        policeStationsList.add(new LatLng(53.42095137,-6.476963398));
+        policeStationsList.add(new LatLng(53.36746653,-6.498336241));
+        policeStationsList.add(new LatLng(53.35608506,-6.450659464));
+        policeStationsList.add(new LatLng(53.38967142,-6.306821102));
+        policeStationsList.add(new LatLng(53.39457808,-6.263771779));
+        policeStationsList.add(new LatLng(53.38969671,-6.250576875));
+        policeStationsList.add(new LatLng(53.39033034,-6.201255612));
+        policeStationsList.add(new LatLng(53.37895784,-6.178143019));
+
+        for(LatLng latLng : policeStationsList)
+        {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            BitmapDrawable bitmapDrawable;
+            bitmapDrawable = (BitmapDrawable) ContextCompat.getDrawable(a.getApplicationContext(), R.drawable.police_logo);
+            assert bitmapDrawable != null;
+            Bitmap bitmap = bitmapDrawable.getBitmap();
+            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+            Marker marker = mMap.addMarker(markerOptions);
+        }
+    }
+
+    private void updateFireStationsListAndUI() {
+        fireStationsList.add(new LatLng(53.321988, -6.237410));
+        fireStationsList.add(new LatLng(53.331522, -6.292684));
+        fireStationsList.add(new LatLng(53.358579, -6.274136));
+        fireStationsList.add(new LatLng(53.359941, -6.239062));
+        fireStationsList.add(new LatLng(53.390037, -6.316544));
+        fireStationsList.add(new LatLng(53.390857, -6.167643));
+        fireStationsList.add(new LatLng(53.307392, -6.383083));
+        fireStationsList.add(new LatLng(53.291810, -6.264472));
+        fireStationsList.add(new LatLng(53.384652, -6.395923));
+        fireStationsList.add(new LatLng(53.345754, -6.254028));
+        fireStationsList.add(new LatLng(53.281724, -6.151476));
+        fireStationsList.add(new LatLng(53.465351, -6.220321));
+
+        for(LatLng latLng : fireStationsList)
+        {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            BitmapDrawable bitmapDrawable;
+            bitmapDrawable = (BitmapDrawable) ContextCompat.getDrawable(a.getApplicationContext(), R.drawable.fire_station_logo);
+            assert bitmapDrawable != null;
+            Bitmap bitmap = bitmapDrawable.getBitmap();
+            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+            Marker marker = mMap.addMarker(markerOptions);
+        }
     }
 
     private void apiCallForRealTimeDetailsForBusStopOnScreen(ArrayList<String> busStopsOnScreen) {
