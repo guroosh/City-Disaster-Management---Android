@@ -94,5 +94,11 @@
             android:layout_height="wrap_content"
             android:text="Maps" />
 
+        <Button
+            android:id="@+id/buttonToken"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Token" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
