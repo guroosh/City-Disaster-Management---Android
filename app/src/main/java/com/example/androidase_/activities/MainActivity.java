@@ -11,6 +11,12 @@ import com.example.androidase_.Verification.VerificationActivity;
 import com.example.androidase_.mqtt.MqttActivity;
 import com.example.androidase_.p2p.P2PActivity;
 import com.example.androidase_.R;
+import android.util.Log;
+
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
+//import com.google.firebase.quickstart.fcm.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -98,8 +104,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button tokenButton = findViewById(R.id.buttonToken);
+        tokenButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.d("test", "this is token:"+FirebaseInstanceId.getInstance().getInstanceId());
 
+               // Log.d("test","hihihi");
 
+                /*
+                FirebaseInstanceId.getInstance().getInstanceId()
+                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                if (!task.isSuccessful()) {
+                                    Log.w(TAG, "getInstanceId failed", task.getException());
+                                    return;
+                                }
+
+                                // Get new Instance ID token
+                                String token = task.getResult().getToken();
+
+                                // Log and toast
+                                String msg = getString(R.string.msg_token_fmt, token);
+                                Log.d(TAG, msg);
+                                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                            }
+                        });*/
+            }
+        });
 //        Button buttonHttp = this.findViewById(R.id.button_http);
 //        buttonHttp.setOnClickListener(new View.OnClickListener() {
 //            @Override

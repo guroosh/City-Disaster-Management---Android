@@ -25,6 +25,16 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        <service
+            android:name=".mqtt.FirebaseService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+
         <activity android:name=".Verification.VerificationActivity"></activity>
         <activity android:name=".activities.RegistrationActivity" />
         <activity android:name=".activities.NotificationActivity" />
@@ -49,7 +59,6 @@
         <activity android:name=".mqtt.MqttActivity" />
 
         <service android:name="org.eclipse.paho.android.service.MqttService" /> <!-- <service android:name=".mqtt.MqttMessageService" /> -->
-
         <receiver android:name=".other_classes.AlarmReceiver" />
 
         <service android:name=".mqtt.MqttMessageService" />
