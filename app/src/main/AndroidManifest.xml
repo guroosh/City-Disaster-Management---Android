@@ -36,6 +36,16 @@
 
 
         <activity android:name=".Verification.VerificationActivity"></activity>
+        <service
+            android:name=".mqtt.FirebaseService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+
         <activity android:name=".activities.RegistrationActivity" />
         <activity android:name=".activities.NotificationActivity" />
 
