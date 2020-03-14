@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.androidase_.Verification.VerificationActivity;
 import com.example.androidase_.mqtt.MqttActivity;
 import com.example.androidase_.p2p.P2PActivity;
 import com.example.androidase_.R;
