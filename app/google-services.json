@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1065025028363",
+    "firebase_url": "https://tcd-ase.firebaseio.com",
+    "project_id": "tcd-ase",
+    "storage_bucket": "tcd-ase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1065025028363:android:ed94148a92784074dc620e",
+        "android_client_info": {
+          "package_name": "com.example.androidase_"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1065025028363-6lrm7iq8osi82rdr4283c4d8cj6ug42u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.androidase_",
+            "certificate_hash": "db5b18352915020bb038444f3ef88095de655978"
+          }
+        },
+        {
+          "client_id": "1065025028363-r2ca8f3ac30rt6f82pghc9kvgv0aq7hh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD900YsJ7CsWzGxpPUYjVAKOMbCbE7sZRY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1065025028363-r2ca8f3ac30rt6f82pghc9kvgv0aq7hh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
