@@ -23,6 +23,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FirebaseMessaging.getInstance().subscribeToTopic("notification");
+
         setContentView(R.layout.activity_main);
         Button buttonDB = this.findViewById(R.id.button_db);
         buttonDB.setOnClickListener(new View.OnClickListener() {
@@ -107,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
         Button tokenButton = findViewById(R.id.buttonToken);
         tokenButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
+
                 Log.d("test", "this is token:"+FirebaseInstanceId.getInstance().getInstanceId());
 
                // Log.d("test","hihihi");

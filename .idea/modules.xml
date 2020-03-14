@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AndroidASE_.iml" filepath="$PROJECT_DIR$/AndroidASE_.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AndroidASE_.iml" filepath="$PROJECT_DIR$/AndroidASE_.iml" group="AndroidASE_" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="AndroidASE_/app" />
     </modules>
   </component>
 </project>
