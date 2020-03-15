@@ -14,6 +14,7 @@ import com.example.androidase_.mqtt.MqttActivity;
 import com.example.androidase_.p2p.P2PActivity;
 import com.example.androidase_.verification.VerificationActivity;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 //import com.google.firebase.quickstart.fcm.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -21,6 +22,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FirebaseMessaging.getInstance().subscribeToTopic("notification");
+
         setContentView(R.layout.activity_main);
         Button buttonDB = this.findViewById(R.id.button_db);
         buttonDB.setOnClickListener(new View.OnClickListener() {
@@ -106,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         tokenButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.d("test", "this is token:" + FirebaseInstanceId.getInstance().getInstanceId());
+
 
                 // Log.d("test","hihihi");
 
