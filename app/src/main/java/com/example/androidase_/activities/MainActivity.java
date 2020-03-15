@@ -1,21 +1,19 @@
 package com.example.androidase_.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.androidase_.Verification.VerificationActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.androidase_.R;
 import com.example.androidase_.mqtt.MqttActivity;
 import com.example.androidase_.p2p.P2PActivity;
-import com.example.androidase_.R;
-import android.util.Log;
-
+import com.example.androidase_.verification.VerificationActivity;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-import com.google.firebase.messaging.FirebaseMessaging;
 //import com.google.firebase.quickstart.fcm.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -107,9 +105,9 @@ public class MainActivity extends AppCompatActivity {
         Button tokenButton = findViewById(R.id.buttonToken);
         tokenButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.d("test", "this is token:"+FirebaseInstanceId.getInstance().getInstanceId());
+                Log.d("test", "this is token:" + FirebaseInstanceId.getInstance().getInstanceId());
 
-               // Log.d("test","hihihi");
+                // Log.d("test","hihihi");
 
                 /*
                 FirebaseInstanceId.getInstance().getInstanceId()

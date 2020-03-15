@@ -35,17 +35,6 @@
         </service>
 
 
-        <activity android:name=".Verification.VerificationActivity"></activity>
-        <service
-            android:name=".mqtt.FirebaseService"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-
-
         <activity android:name=".activities.RegistrationActivity" />
         <activity android:name=".activities.NotificationActivity" />
 
@@ -67,6 +56,7 @@
         <activity android:name=".p2p.P2PActivity" />
         <activity android:name=".activities.MapsActivity" />
         <activity android:name=".mqtt.MqttActivity" />
+        <activity android:name=".verification.VerificationActivity" />
 
         <service android:name="org.eclipse.paho.android.service.MqttService" /> <!-- <service android:name=".mqtt.MqttMessageService" /> -->
         <receiver android:name=".other_classes.AlarmReceiver" />

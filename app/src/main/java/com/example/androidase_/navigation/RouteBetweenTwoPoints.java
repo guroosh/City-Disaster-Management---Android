@@ -1,12 +1,10 @@
-package com.example.androidase_.Navigation;
+package com.example.androidase_.navigation;
 
 import android.app.Activity;
 import android.graphics.Color;
 import android.util.Log;
 
-import com.example.androidase_.object_classes.ReportedDisaster;
 import com.example.androidase_.other_classes.PathJSONParser;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -19,9 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
-import static com.example.androidase_.Navigation.RouteBetweenThreePoints.initialiseProcessForRouteBetweenThreePoints;
+import static com.example.androidase_.navigation.RouteBetweenThreePoints.initialiseProcessForRouteBetweenThreePoints;
 import static com.example.androidase_.activities.MapsActivity.circleCenter;
 import static com.example.androidase_.activities.MapsActivity.circleRadius;
 import static com.example.androidase_.activities.MapsActivity.globalCurrentLocation;

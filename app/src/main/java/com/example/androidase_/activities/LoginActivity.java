@@ -12,7 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.androidase_.R;
-import com.example.androidase_.Verification.VerificationActivity;
+import com.example.androidase_.verification.VerificationActivity;
 import com.example.androidase_.database.BaseDataHelper;
 import com.example.androidase_.object_classes.CommonUserAfterLoginPOJO;
 import com.example.androidase_.object_classes.CommonUserRegistrationPOJO;

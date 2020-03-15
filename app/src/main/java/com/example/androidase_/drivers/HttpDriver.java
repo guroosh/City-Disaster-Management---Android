@@ -9,8 +9,6 @@ import android.util.Log;
 import androidx.core.content.ContextCompat;
 
 import com.example.androidase_.R;
-import com.example.androidase_.ReportingDisaster.DisasterReport;
-import com.example.androidase_.object_classes.ReportedDisaster;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;

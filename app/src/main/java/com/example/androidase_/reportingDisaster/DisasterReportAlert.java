@@ -1,4 +1,4 @@
-package com.example.androidase_.ReportingDisaster;
+package com.example.androidase_.reportingDisaster;
 
 import android.app.Activity;
 import android.app.AlertDialog;

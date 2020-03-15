@@ -1,12 +1,8 @@
-package com.example.androidase_.Verification;
+package com.example.androidase_.verification;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-
-import com.example.androidase_.R;
-import com.example.androidase_.ReportingDisaster.DisasterReport;
 
 public class VerificationAlertBox {
     public static void createAlert(Context context)

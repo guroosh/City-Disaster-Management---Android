@@ -25,7 +25,7 @@ import android.widget.Toast;
 import com.example.androidase_.R;
 import com.example.androidase_.drivers.MapsDriver;
 import com.example.androidase_.object_classes.ReportedDisaster;
-import com.example.androidase_.ReportingDisaster.DisasterReportAlert;
+import com.example.androidase_.reportingDisaster.DisasterReportAlert;
 import com.example.androidase_.drivers.HttpDriver;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -50,11 +50,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import static com.example.androidase_.Navigation.RouteBetweenTwoPoints.createThreadGetForRouteBetweenTwoLocations;
+import static com.example.androidase_.navigation.RouteBetweenTwoPoints.createThreadGetForRouteBetweenTwoLocations;
 import static com.example.androidase_.drivers.MapsDriver.animateUsingBound;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {

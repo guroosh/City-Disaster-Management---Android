@@ -1,4 +1,4 @@
-package com.example.androidase_.Verification;
+package com.example.androidase_.verification;
 
 import androidx.appcompat.app.AppCompatActivity;
 
