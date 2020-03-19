@@ -52,6 +52,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
     public static GoogleMap verification_mMap;
     public static ArrayList<Marker> verificationMarkerListCurrentLocation;
     Activity a = this;
+    private static Context mContext;
     public static boolean verificationSubmissionConfirmation = false;
     boolean isStartCurrentLocationSet_verification = false;
     public static LatLng possibleDisasterLocation;
@@ -61,6 +62,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verification);
 
+        mContext = this.getApplicationContext();
         // this should come from the server (using MQTT?)
         Random r = new Random();
         double lng = -6.310015 + r.nextDouble() * (-6.230852 + 6.310015);
@@ -100,22 +102,14 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
                     radius = findViewById(R.id.verification_EditTextRadius);
                     CheckBox isInfoTrue = findViewById(R.id.verification_CheckBoxIsInfoTrue);
                     EditText landmark = findViewById(R.id.verification_EditTextLandmark);
-                    VerifyingDisasterPOJO verifyingDisasterPOJO = new VerifyingDisasterPOJO();
-                    verifyingDisasterPOJO.referenceId = "RD260599";
-                    verifyingDisasterPOJO.verifiedBy = "CurrentUser";
-                    verifyingDisasterPOJO.verifiedTime = String.valueOf(System.currentTimeMillis() / 1000);
-                    verifyingDisasterPOJO.isInfoTrue = isInfoTrue.isChecked();
-                    verifyingDisasterPOJO.landmark = landmark.getText().toString();
-                    verifyingDisasterPOJO.radius = Double.parseDouble(radius.getText().toString());
-                    verifyingDisasterPOJO.scale = scale.getSelectedItem().toString();
-                    verifyingDisasterPOJO.latitude = 12.43;
-                    verifyingDisasterPOJO.longitude = 12.43;
-                    Log.d("OUTPUT42", verifyingDisasterPOJO.objToJson().toString());
+                    boolean isInfoTrueBool = isInfoTrue.isChecked();
+                    String landmarkString = landmark.getText().toString();
+                    double radiusDouble = Double.parseDouble(radius.getText().toString());
+                    String scaleString = scale.getSelectedItem().toString();
+                    double latitude = 12.43;
+                    double longitude = 12.43;
                     VerificationAlertBox verificationAlertBox = new VerificationAlertBox();
-                    verificationAlertBox.createAlert(VerificationActivity.this);
-                    if (verificationSubmissionConfirmation) {
-                        createThreadPostToVerify("http://" + R.string.ip_address + "/services/ds/disasterReport/verifiedDisaster", verifyingDisasterPOJO.objToJson());
-                    }
+                    verificationAlertBox.createAlert(VerificationActivity.this, isInfoTrueBool, landmarkString, radiusDouble, scaleString, latitude, longitude, a);
                 } else {
                     Toast.makeText(getApplicationContext(), "Enter radius", Toast.LENGTH_SHORT).show();
                 }
@@ -132,7 +126,11 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
 //        });
     }
 
-    public void createThreadPostToVerify(final String url, final JSONObject object) throws NullPointerException {
+    public static Context getAppContext(){
+        return mContext;
+    }
+
+    public static void createThreadPostToVerify(final String url, final JSONObject object, final Activity a) throws NullPointerException {
         final int[] response = new int[1];
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -143,15 +141,15 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
                     if (response[0] == 200) {
                         a.runOnUiThread(new Runnable() {
                             public void run() {
-                                Toast.makeText(getApplicationContext(), "Verification Successful\nPlease wait for further instructions", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(a, "Verification Successful\nPlease wait for further instructions", Toast.LENGTH_SHORT).show();
                             }
                         });
-                        Intent myIntent = new Intent(VerificationActivity.this, MapsActivity.class);
-                        startActivity(myIntent);
+                        Intent myIntent = new Intent(mContext, MapsActivity.class);
+                        mContext.startActivity(myIntent);
                     } else {
                         a.runOnUiThread(new Runnable() {
                             public void run() {
-                                Toast.makeText(getApplicationContext(), "Error while verification", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(a, "Error while verification", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -161,7 +159,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
         thread.start();
     }
 
-    private int postRestApi(String url, JSONObject object) throws NullPointerException {
+    private static int postRestApi(String url, JSONObject object) throws NullPointerException {
         final MediaType JSON = MediaType.parse("application/json");
         OkHttpClient client = new OkHttpClient();
         RequestBody body = RequestBody.create(object.toString(), JSON);
