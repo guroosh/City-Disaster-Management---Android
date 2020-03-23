@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">AndroidASE_</string>
     <string name="ip_address">10.6.51.149:8080</string>
-<!--    <string name="ip_address">10.6.38.11:8080</string>-->
+    <!--    <string name="ip_address">10.6.38.11:8080</string>-->
     <string-array name="arrayGovernmentIDType">
         <item>Public Service Card</item>
         <item>Passport</item>

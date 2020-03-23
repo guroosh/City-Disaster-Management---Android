@@ -10,6 +10,7 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.androidase_.R;
+import com.example.androidase_.chatbox.ChatActivity;
 import com.example.androidase_.mqtt.MqttActivity;
 import com.example.androidase_.p2p.P2PActivity;
 import com.example.androidase_.verification.VerificationActivity;
@@ -101,6 +102,15 @@ public class MainActivity extends AppCompatActivity {
         mapsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, MapsActivity.class);
+                myIntent.putExtra("key", "test");
+                MainActivity.this.startActivity(myIntent);
+            }
+        });
+
+        Button chatButton = findViewById(R.id.buttonChatbox);
+        chatButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent myIntent = new Intent(MainActivity.this, ChatActivity.class);
                 myIntent.putExtra("key", "test");
                 MainActivity.this.startActivity(myIntent);
             }
