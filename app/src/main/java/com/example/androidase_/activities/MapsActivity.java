@@ -223,6 +223,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         MapsDriver.initiateRandomCircleCreation(new ReportedDisaster(), a);
         HttpDriver.createThreadGetForBusStops(a, mMap);
 
+        mMap.setTrafficEnabled(true);
 
         mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
@@ -255,31 +256,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                    MapsDriver.plotBusStopsOnScreen(busStopsOnScreenMap, a);
                 }
                 Log.d("camera42", String.valueOf(mMap.getCameraPosition().zoom));
-            }
-        });
-
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
-
-                /* coded for simulating buses based on bus stops on screen */
-//                int countBusStopsOnScreen = 0;
-//                ArrayList<String> busStopsOnScreenList = new ArrayList<>();
-//                for (Map.Entry<String, LatLng> entry : busStopList.entrySet()) {
-//                    LatLng busStop = entry.getValue();
-//                    if (bounds.contains(busStop)) {
-//                        countBusStopsOnScreen++;
-//                        busStopsOnScreenList.add(entry.getKey());
-//                        Log.d("output42", busStop.latitude + ", " + busStop.longitude);
-//                    } else {
-//                        Log.d("error42", busStop.latitude + ", " + busStop.longitude);
-//                    }
-//                }
-//                Toast.makeText(getApplicationContext(), "Moving: " + countBusStopsOnScreen + " / " + busStopList.size(), Toast.LENGTH_SHORT).show();
-//                if (countBusStopsOnScreen <= 40) {
-//                    apiCallForRealTimeDetailsForBusStopOnScreen(busStopsOnScreenList);
-//                }
             }
         });
     }
