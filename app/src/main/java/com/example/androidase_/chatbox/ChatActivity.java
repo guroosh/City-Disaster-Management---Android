@@ -1,15 +1,21 @@
 package com.example.androidase_.chatbox;
 
+import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
 import com.example.androidase_.R;
+import com.example.androidase_.activities.MapsActivity;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -32,11 +38,11 @@ public class ChatActivity extends AppCompatActivity {
     private MessageAdapter messageAdapter;
     private ListView messagesView;
     public MemberData data;
-    public String randomString;
 
+    public String randomString;
     private MqttAndroidClient client;
     private String mqttTopic;
-//    private TextView status;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +116,7 @@ public class ChatActivity extends AppCompatActivity {
         return sb.toString().substring(0, 7);
     }
 
-    private void connectMQTT() {
+    public void connectMQTT() {
         mqttTopic = "ase/android";
         String clientId = MqttClient.generateClientId();
         client = new MqttAndroidClient(this.getApplicationContext(), "tcp://broker.hivemq.com:1883",
@@ -181,6 +187,7 @@ public class ChatActivity extends AppCompatActivity {
                 } else {
                     isItMyMessage = false;
                     msg = msg.substring(36);
+                    makeNotification("Chat support", msg);
                 }
                 publishMessage(msg, isItMyMessage);
             }
@@ -192,4 +199,26 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    private void makeNotification(String title, String msg) {
+        Intent notificationIntent = new Intent(getApplicationContext(), MapsActivity.class);
+        notificationIntent.putExtra("NotificationMessage", "I am from Notification");
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("YOUR_CHANNEL_ID",
+                    "YOUR_CHANNEL_NAME",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("YOUR_NOTIFICATION_CHANNEL_DISCRIPTION");
+            mNotificationManager.createNotificationChannel(channel);
+        }
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "YOUR_CHANNEL_ID")
+                .setSmallIcon(R.mipmap.ic_launcher) // notification icon
+                .setContentTitle(title) // title for notification
+                .setContentText(msg)// message for notification
+                .setAutoCancel(true); // clear notification after click
+        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(pi);
+        mNotificationManager.notify(0, mBuilder.build());
+    }
 }

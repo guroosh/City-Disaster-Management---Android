@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FirebaseMessaging.getInstance().subscribeToTopic("notification");
+//        FirebaseMessaging.getInstance().subscribeToTopic("notification");
 
         setContentView(R.layout.activity_main);
         Button buttonDB = this.findViewById(R.id.button_db);
