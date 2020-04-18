@@ -29,6 +29,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+
         <service
             android:name=".mqtt.FirebaseService"
             android:enabled="true"
@@ -38,21 +39,20 @@
             </intent-filter>
         </service>
 
-
-        <activity android:name=".activities.RegistrationActivity" />
-        <activity android:name=".activities.NotificationActivity" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".activities.LoginActivity">
+        <activity android:name=".activities.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activities.RegistrationActivity" />
+        <activity android:name=".activities.NotificationActivity" />
+        <activity android:name=".activities.LoginActivity" />
         <activity android:name=".activities.MainActivity" />
         <activity android:name=".chatbox.ChatActivity" />
         <activity android:name=".activities.HttpActivity" />

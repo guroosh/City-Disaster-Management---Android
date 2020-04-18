@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AndroidASE_.iml" filepath="$PROJECT_DIR$/AndroidASE_.iml" group="AndroidASE_" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="AndroidASE_/app" />
+      <module fileurl="file://$PROJECT_DIR$/rscd_android-AndroidASE_.iml" filepath="$PROJECT_DIR$/rscd_android-AndroidASE_.iml" group="AndroidASE_" />
+      <module fileurl="file://$PROJECT_DIR$/app/rscd_android-app.iml" filepath="$PROJECT_DIR$/app/rscd_android-app.iml" group="AndroidASE_/app" />
     </modules>
   </component>
 </project>

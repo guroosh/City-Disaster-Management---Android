@@ -1,84 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <fragment
-            android:id="@+id/autocomplete_fragment"
-            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:context=".activities.MapsActivity" />
-
-        <fragment
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".activities.MapsActivity" />
-
-    </LinearLayout>
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".activities.MapsActivity">
 
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="130dp"
-        android:layout_alignParentBottom="true">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="vertical">
+
+            <fragment
+                android:id="@+id/autocomplete_fragment"
+                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:context=".activities.MapsActivity" />
+
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".activities.MapsActivity" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="130dp"
+            android:layout_alignParentBottom="true">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-                <Button
-                    android:id="@+id/button_report_disaster"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/round_button_report_disaster"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:text="Report Disaster"
-                    android:textColor="@android:color/white"
-                    tools:ignore="HardcodedText" />
-                <Button
-                    android:id="@+id/button_get_direction"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/round_button_get_direction"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:text="Get Direction"
-                    android:textColor="@android:color/white"
-                    tools:ignore="HardcodedText"
-                    android:visibility="invisible"/>
-            </LinearLayout>
-        </LinearLayout>
 
-        <Button
-            android:id="@+id/button_show_current_location"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="30dp"
-            android:layout_marginBottom="70dp"
-            android:background="@drawable/round_button" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/button_report_disaster"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/round_button_report_disaster"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
+                        android:text="Report Disaster"
+                        android:textColor="@android:color/white"
+                        tools:ignore="HardcodedText" />
+
+                    <Button
+                        android:id="@+id/button_get_direction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/round_button_get_direction"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
+                        android:text="Get Direction"
+                        android:textColor="@android:color/white"
+                        android:visibility="invisible"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/button_show_current_location"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="30dp"
+                android:layout_marginBottom="70dp"
+                android:background="@drawable/round_button" />
+        </RelativeLayout>
     </RelativeLayout>
-</RelativeLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/navigation_head"
+        app:menu="@menu/navigation_maps_layout"/>
+
+</androidx.drawerlayout.widget.DrawerLayout>

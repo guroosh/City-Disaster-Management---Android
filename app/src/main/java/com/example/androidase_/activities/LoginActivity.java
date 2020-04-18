@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,8 +13,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.androidase_.R;
-import com.example.androidase_.verification.VerificationActivity;
 import com.example.androidase_.database.BaseDataHelper;
+import com.example.androidase_.verification.VerificationActivity;
 import com.example.androidase_.object_classes.CommonUserAfterLoginPOJO;
 import com.example.androidase_.object_classes.CommonUserRegistrationPOJO;
 
@@ -21,10 +22,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.Random;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -45,6 +47,8 @@ public class LoginActivity extends AppCompatActivity {
 
         final String tableName = "user_data";
         final String[] columnNames = {"username", "password"};
+        final BaseDataHelper userDatabase = new BaseDataHelper(LoginActivity.this);
+        userDatabase.createTable(tableName, new ArrayList<String>(Arrays.asList(columnNames)));
 
         Button signInButton = findViewById(R.id.login);
         signInButton.setOnClickListener(new View.OnClickListener() {
@@ -52,12 +56,19 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String usernameString = username.getText().toString();
                 String passwordString = password.getText().toString();
-                BaseDataHelper userDatabase = new BaseDataHelper(LoginActivity.this);
-                userDatabase.createTable(tableName, new ArrayList<String>(Arrays.asList(columnNames)));
 
-                HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
+                //For backend
                 CommonUserRegistrationPOJO commonUser = new CommonUserRegistrationPOJO();
-                CommonUserAfterLoginPOJO commonUserAfterLoginPOJO = createThreadPostToLogin("http://" + getResources().getString(R.string.ip_address) + "/login/login", commonUser.objToJson(usernameString, passwordString));
+//                CommonUserAfterLoginPOJO commonUserAfterLoginPOJO = createThreadPostToLogin("http://" + getResources().getString(R.string.ip_address) + "/login/login", commonUser.objToJson(usernameString, passwordString), usernameString, passwordString);
+
+                //For demo
+                HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
+                boolean isUserNameSame = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
+                Random r = new Random();
+                int rInt = r.nextInt(2);
+                boolean isCommonUser;
+                isCommonUser = rInt != 0;
+                startNextActivity(true, usernameString, passwordString, isUserNameSame);
             }
         });
 
@@ -89,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
         return username.equals(u1) && password.equals(p1);
     }
 
-    public CommonUserAfterLoginPOJO createThreadPostToLogin(final String url, final JSONObject object) throws NullPointerException {
+    public CommonUserAfterLoginPOJO createThreadPostToLogin(final String url, final JSONObject object, final String username, final String password) throws NullPointerException {
         final Response[] returnValue = new Response[1];
         final CommonUserAfterLoginPOJO[] commonUserAfterLoginPOJO = new CommonUserAfterLoginPOJO[1];
         Thread thread = new Thread(new Runnable() {
@@ -110,25 +121,16 @@ public class LoginActivity extends AppCompatActivity {
                             });
                         } else {
                             if (returnValue[0].code() == 200) {
-                                String returnValueString = returnValue[0].body().string();
+                                String returnValueString = Objects.requireNonNull(returnValue[0].body()).string();
                                 Log.d("response42", returnValueString);
-                                String jsonData = returnValueString;
-                                JSONObject jsonObject = new JSONObject(jsonData);
+                                JSONObject jsonObject = new JSONObject(returnValueString);
                                 Log.d("response42", jsonObject.getString("referenceCode"));
                                 commonUserAfterLoginPOJO[0] = new CommonUserAfterLoginPOJO();
                                 commonUserAfterLoginPOJO[0].accessToken = jsonObject.getString("accessToken");
                                 commonUserAfterLoginPOJO[0].isCommonUser = jsonObject.getBoolean("isCommonUser");
                                 commonUserAfterLoginPOJO[0].referenceCode = jsonObject.getString("referenceCode");
                                 boolean isCommonUser = commonUserAfterLoginPOJO[0].isCommonUser;
-                                if (isCommonUser) {
-                                    Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
-//                            myIntent.putExtra("username", usernameString);
-                                    LoginActivity.this.startActivity(myIntent);
-                                } else {
-                                    Intent myIntent = new Intent(LoginActivity.this, VerificationActivity.class);
-//                            myIntent.putExtra("username", usernameString);
-                                    LoginActivity.this.startActivity(myIntent);
-                                }
+                                startNextActivity(isCommonUser, username, password, true);
                             } else {
                                 Log.d("response42", "Server error");
                                 a.runOnUiThread(new Runnable() {
@@ -152,6 +154,27 @@ public class LoginActivity extends AppCompatActivity {
         });
         thread.start();
         return commonUserAfterLoginPOJO[0];
+    }
+
+    private void startNextActivity(boolean isCommonUser, String username, String password, boolean isUserNameSame) {
+        if (!username.equals("") && !password.equals("") && isUserNameSame) {
+            SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
+            editor.putBoolean("loggedIn", true);
+            editor.apply();
+            if (isCommonUser) {
+                Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
+                LoginActivity.this.startActivity(myIntent);
+            } else {
+                Intent myIntent = new Intent(LoginActivity.this, VerificationActivity.class);
+                LoginActivity.this.startActivity(myIntent);
+            }
+        } else if (username.equals("") && password.equals("")){
+            //this if-else is to test, remove later
+            Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
+            LoginActivity.this.startActivity(myIntent);
+        } else {
+            Toast.makeText(this, "Wrong username or password", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private Response postRestApi(String url, JSONObject object) throws NullPointerException {

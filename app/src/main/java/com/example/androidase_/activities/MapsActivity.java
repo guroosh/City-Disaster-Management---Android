@@ -1,10 +1,13 @@
 package com.example.androidase_.activities;
 
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,6 +20,9 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -44,9 +50,11 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -93,8 +101,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
@@ -176,6 +182,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+
 //       //Option 1 to start Mqtt listener
 //        PahoMqttClient pahoMqttClient = new PahoMqttClient();
 //        MqttAndroidClient client = pahoMqttClient.getMqttClient(getApplicationContext(), MQTT_BROKER_URL, 0);
@@ -183,6 +190,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Option 2 to start Mqtt listener
 //        Intent intent2 = new Intent(MapsActivity.this, MqttMessageServiceForMaps.class);
 //        startService(intent2);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.navigation_maps_layout, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        Log.d("qwerty42", String.valueOf(item.getItemId()));
+        switch (item.getItemId()) {
+            case R.id.logout_item:
+                Toast.makeText(this, "Make text", Toast.LENGTH_SHORT).show();
+                Log.d("qwerty42", "make text");
+                return true;
+            default:
+                Log.d("qwerty42", "default");
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void initializePlaces() throws NullPointerException {
@@ -261,27 +290,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void updatePoliceStationsListAndUI() {
-        policeStationsList.add(new LatLng(53.61437815,-6.191052919));
-        policeStationsList.add(new LatLng(53.57959038,-6.10696161));
-        policeStationsList.add(new LatLng(53.52343539,-6.167335346));
-        policeStationsList.add(new LatLng(53.45110927,-6.151897022));
-        policeStationsList.add(new LatLng(53.45606714,-6.221164734));
-        policeStationsList.add(new LatLng(53.42977837,-6.245041004));
-        policeStationsList.add(new LatLng(53.38735506,-6.068977549));
-        policeStationsList.add(new LatLng(53.56705171,-6.383869161));
-        policeStationsList.add(new LatLng(53.38978396,-6.380770745));
-        policeStationsList.add(new LatLng(53.51138166,-6.396980308));
-        policeStationsList.add(new LatLng(53.42095137,-6.476963398));
-        policeStationsList.add(new LatLng(53.36746653,-6.498336241));
-        policeStationsList.add(new LatLng(53.35608506,-6.450659464));
-        policeStationsList.add(new LatLng(53.38967142,-6.306821102));
-        policeStationsList.add(new LatLng(53.39457808,-6.263771779));
-        policeStationsList.add(new LatLng(53.38969671,-6.250576875));
-        policeStationsList.add(new LatLng(53.39033034,-6.201255612));
-        policeStationsList.add(new LatLng(53.37895784,-6.178143019));
+        policeStationsList.add(new LatLng(53.61437815, -6.191052919));
+        policeStationsList.add(new LatLng(53.57959038, -6.10696161));
+        policeStationsList.add(new LatLng(53.52343539, -6.167335346));
+        policeStationsList.add(new LatLng(53.45110927, -6.151897022));
+        policeStationsList.add(new LatLng(53.45606714, -6.221164734));
+        policeStationsList.add(new LatLng(53.42977837, -6.245041004));
+        policeStationsList.add(new LatLng(53.38735506, -6.068977549));
+        policeStationsList.add(new LatLng(53.56705171, -6.383869161));
+        policeStationsList.add(new LatLng(53.38978396, -6.380770745));
+        policeStationsList.add(new LatLng(53.51138166, -6.396980308));
+        policeStationsList.add(new LatLng(53.42095137, -6.476963398));
+        policeStationsList.add(new LatLng(53.36746653, -6.498336241));
+        policeStationsList.add(new LatLng(53.35608506, -6.450659464));
+        policeStationsList.add(new LatLng(53.38967142, -6.306821102));
+        policeStationsList.add(new LatLng(53.39457808, -6.263771779));
+        policeStationsList.add(new LatLng(53.38969671, -6.250576875));
+        policeStationsList.add(new LatLng(53.39033034, -6.201255612));
+        policeStationsList.add(new LatLng(53.37895784, -6.178143019));
 
-        for(LatLng latLng : policeStationsList)
-        {
+        for (LatLng latLng : policeStationsList) {
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             BitmapDrawable bitmapDrawable;
@@ -308,8 +336,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         fireStationsList.add(new LatLng(53.281724, -6.151476));
         fireStationsList.add(new LatLng(53.465351, -6.220321));
 
-        for(LatLng latLng : fireStationsList)
-        {
+        for (LatLng latLng : fireStationsList) {
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             BitmapDrawable bitmapDrawable;
@@ -368,6 +395,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    public void thisFunction(View v) {
+        Toast.makeText(this, "Make text", Toast.LENGTH_SHORT).show();
     }
 
 }

@@ -15,11 +15,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.androidase_.R;
+import com.example.androidase_.database.BaseDataHelper;
 import com.example.androidase_.object_classes.CommonUserRegistrationPOJO;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -80,7 +84,12 @@ public class RegistrationActivity extends AppCompatActivity {
 
 //                    Toast.makeText(getApplicationContext(), commonUser.objToJson().toString(), Toast.LENGTH_SHORT).show();
                     Log.d("OUTPUT42", commonUser.objToJson().toString());
-                    createThreadPostToSignup("http://" + getResources().getString(R.string.ip_address) + "/services/rs/registration/registerCu", commonUser.objToJson());
+
+                    //For backend
+//                    createThreadPostToSignup("http://" + getResources().getString(R.string.ip_address) + "/services/rs/registration/registerCu", commonUser.objToJson());
+                    //For demo
+                    startNextActivity(commonUser.emailId, commonUser.password);
+
                 } else {
                     Toast.makeText(getApplicationContext(), "Nope", Toast.LENGTH_SHORT).show();
                 }
@@ -96,6 +105,22 @@ public class RegistrationActivity extends AppCompatActivity {
                 RegistrationActivity.this.startActivity(myIntent);
             }
         });
+    }
+
+    private void startNextActivity(String username, String password) {
+        HashMap<String, String> data = new HashMap<>();
+        data.put("username", username);
+        data.put("password", password);
+
+        String tableName = "user_data";
+        String[] columnNames = {"username", "password"};
+        BaseDataHelper userDatabase = new BaseDataHelper(this);
+        userDatabase.createTable(tableName, new ArrayList<>(Arrays.asList(columnNames)));
+        userDatabase.insertRow(tableName, data.get("username"), data);
+
+        Toast.makeText(getApplicationContext(), "Registration Successful", Toast.LENGTH_SHORT).show();
+        Intent myIntent = new Intent(RegistrationActivity.this, MapsActivity.class);
+        RegistrationActivity.this.startActivity(myIntent);
     }
 
     protected boolean checkCondition(int ID, int kind, String wrongMsg) {
@@ -148,7 +173,7 @@ public class RegistrationActivity extends AppCompatActivity {
                         if (response[0].code() == 200) {
                             a.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    Toast.makeText(getApplicationContext(), "Registration Successful\nLogin to enter", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "Registration Successful", Toast.LENGTH_SHORT).show();
                                 }
                             });
                             Intent myIntent = new Intent(RegistrationActivity.this, MapsActivity.class);
