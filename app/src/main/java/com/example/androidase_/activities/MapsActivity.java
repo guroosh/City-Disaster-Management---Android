@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -17,9 +18,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.androidase_.R;
+import com.example.androidase_.chatbox.ChatActivity;
 import com.example.androidase_.drivers.MapsDriver;
 import com.example.androidase_.object_classes.ReportedDisaster;
 import com.example.androidase_.reportingDisaster.DisasterReportAlert;
@@ -182,6 +186,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+//        MenuItem item = findViewById(R.id.logout_item);
+//        item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                Toast.makeText(getBaseContext(), "Make text", Toast.LENGTH_SHORT).show();
+//                return true;
+//            }
+//        });
 
 //       //Option 1 to start Mqtt listener
 //        PahoMqttClient pahoMqttClient = new PahoMqttClient();
@@ -192,27 +204,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        startService(intent2);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.navigation_maps_layout, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        Log.d("qwerty42", String.valueOf(item.getItemId()));
-        switch (item.getItemId()) {
-            case R.id.logout_item:
-                Toast.makeText(this, "Make text", Toast.LENGTH_SHORT).show();
-                Log.d("qwerty42", "make text");
-                return true;
-            default:
-                Log.d("qwerty42", "default");
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.navigation_maps_layout, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle item selection
+//        Log.d("qwerty42", String.valueOf(item.getItemId()));
+//        switch (item.getItemId()) {
+//            case R.id.logout_item:
+//                Toast.makeText(this, "Make text", Toast.LENGTH_SHORT).show();
+//                Log.d("qwerty42", "make text");
+//                return true;
+//            default:
+//                Log.d("qwerty42", "default");
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 
     private void initializePlaces() throws NullPointerException {
         Places.initialize(getApplicationContext(), API_KEY);
@@ -397,8 +409,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onStatusChanged(String provider, int status, Bundle extras) {
     }
 
-    public void thisFunction(View v) {
-        Toast.makeText(this, "Make text", Toast.LENGTH_SHORT).show();
+    public void logoutFunction(MenuItem item) {
+        SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
+        editor.putBoolean("loggedIn", false);
+        editor.apply();
+        Intent myIntent = new Intent(MapsActivity.this, LoginActivity.class);
+        MapsActivity.this.startActivity(myIntent);
+    }
+
+    public void openChatBoxFunction(MenuItem item) {
+        Intent myIntent = new Intent(MapsActivity.this, ChatActivity.class);
+        MapsActivity.this.startActivity(myIntent);
+    }
+
+    public void openPhoneApplicationFunction(MenuItem item) {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:1234###"));
+        startActivity(intent);
     }
 
 }

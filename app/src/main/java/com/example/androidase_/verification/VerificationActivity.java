@@ -12,7 +12,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -22,7 +21,6 @@ import android.widget.Toast;
 
 import com.example.androidase_.R;
 import com.example.androidase_.activities.MapsActivity;
-import com.example.androidase_.object_classes.VerifyingDisasterPOJO;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,7 +50,6 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
     public static GoogleMap verification_mMap;
     public static ArrayList<Marker> verificationMarkerListCurrentLocation;
     Activity a = this;
-    private static Context mContext;
     public static boolean verificationSubmissionConfirmation = false;
     boolean isStartCurrentLocationSet_verification = false;
     public static LatLng possibleDisasterLocation;
@@ -62,7 +59,6 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verification);
 
-        mContext = this.getApplicationContext();
         // this should come from the server (using MQTT?)
         Random r = new Random();
         double lng = -6.310015 + r.nextDouble() * (-6.230852 + 6.310015);
@@ -126,9 +122,9 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
 //        });
     }
 
-    public static Context getAppContext(){
-        return mContext;
-    }
+//    public static Context getAppContext(){
+//        return VerificationActivity.getAppContext();
+//    }
 
     public static void createThreadPostToVerify(final String url, final JSONObject object, final Activity a) throws NullPointerException {
         final int[] response = new int[1];
@@ -144,8 +140,8 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
                                 Toast.makeText(a, "Verification Successful\nPlease wait for further instructions", Toast.LENGTH_SHORT).show();
                             }
                         });
-                        Intent myIntent = new Intent(mContext, MapsActivity.class);
-                        mContext.startActivity(myIntent);
+                        Intent myIntent = new Intent(a, MapsActivity.class);
+                        a.startActivity(myIntent);
                     } else {
                         a.runOnUiThread(new Runnable() {
                             public void run() {

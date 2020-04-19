@@ -1,34 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group>
-        <item android:id="@+id/nav_item_one"
+        <item
+            android:id="@+id/nav_item_one"
             android:icon="@drawable/yellow"
-            android:title="Assistance chat"
+            android:onClick="openChatBoxFunction"
+            android:title="Chat assistance" />
 
-            />
-        <item android:id="@+id/nav_item_two"
+        <item
+            android:id="@+id/nav_item_two"
             android:icon="@drawable/yellow"
+            android:onClick="openPhoneApplicationFunction"
             android:title="Emergency call" />
-<!--        <item android:id="@+id/nav_item_three"-->
-<!--            android:icon="@drawable/yellow"-->
-<!--            android:title="Item 3" />-->
     </group>
 
     <group android:id="@+id/group_menu">
-        <item android:id="@+id/logout_item"
+        <item
+            android:id="@+id/logout_item"
             android:icon="@drawable/yellow"
-            android:onClick="thisFunction"
+            android:onClick="logoutFunction"
             android:title="Logout" />
     </group>
-
-<!--    <item android:title="Title 1">-->
-<!--        <menu>-->
-<!--            <item android:id="@+id/nav_item_six"-->
-<!--                android:icon="@drawable/yellow"-->
-<!--                android:title="Item 6" />-->
-<!--            <item android:id="@+id/nav_item_seven"-->
-<!--                android:icon="@drawable/yellow"-->
-<!--                android:title="Item 7" />-->
-<!--        </menu>-->
-<!--    </item>-->
 </menu>

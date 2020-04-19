@@ -79,6 +79,7 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
+
     private void publishMessage(String receivedMessage, boolean isItMyMessage) {
         Random r = new Random();
         int i = r.nextInt(2);

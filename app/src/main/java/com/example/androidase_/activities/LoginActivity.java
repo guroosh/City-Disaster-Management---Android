@@ -64,10 +64,6 @@ public class LoginActivity extends AppCompatActivity {
                 //For demo
                 HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
                 boolean isUserNameSame = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
-                Random r = new Random();
-                int rInt = r.nextInt(2);
-                boolean isCommonUser;
-                isCommonUser = rInt != 0;
                 startNextActivity(true, usernameString, passwordString, isUserNameSame);
             }
         });
