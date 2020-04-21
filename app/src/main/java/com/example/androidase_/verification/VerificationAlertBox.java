@@ -42,7 +42,13 @@ public class VerificationAlertBox {
                         verifyingDisasterPOJO.scale = scale;
                         verifyingDisasterPOJO.latitude = latitude;
                         verifyingDisasterPOJO.longitude = longitude;
-                        VerificationActivity.createThreadPostToVerify("http://" + R.string.ip_address + "/services/ds/disasterReport/verifiedDisaster", verifyingDisasterPOJO.objToJson(), a);
+                        //For backend
+//                        VerificationActivity.createThreadPostToVerify("http://" + R.string.ip_address + "/services/ds/disasterReport/verifiedDisaster", verifyingDisasterPOJO.objToJson(), a);
+                        //For demo
+                        if (isInfoTrue) {
+                            Log.d("CircleDrawing42", "sending message");
+                            VerificationActivity.sendMessage(latitude + "," + longitude + "," + radius);
+                        }
                     }
                 });
 

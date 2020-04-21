@@ -35,13 +35,13 @@ public class SplashScreenActivity extends AppCompatActivity {
         final boolean[] isCommonUser = new boolean[1];
 //        isCommonUser[0] = (rInt != 0);
         isCommonUser[0] = true;
-        Button button = findViewById(R.id.isAdmin);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isCommonUser[0] = false;
-            }
-        });
+//        Button button = findViewById(R.id.isAdmin);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                isCommonUser[0] = false;
+//            }
+//        });
 
         if (loggedIn) {
             new Handler().postDelayed(new Runnable() {
@@ -64,7 +64,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     Intent intent = new Intent(SplashScreenActivity.this, LoginActivity.class);
-                    intent.putExtra("isCommonUser", isCommonUser[0]);
+//                    intent.putExtra("isCommonUser", isCommonUser[0]);
                     startActivity(intent);
                     finish();
                 }

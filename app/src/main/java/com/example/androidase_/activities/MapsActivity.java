@@ -1,12 +1,16 @@
 package com.example.androidase_.activities;
 
 import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +37,7 @@ import android.widget.Toast;
 
 import com.example.androidase_.R;
 import com.example.androidase_.chatbox.ChatActivity;
+import com.example.androidase_.chatbox.Message;
 import com.example.androidase_.drivers.MapsDriver;
 import com.example.androidase_.object_classes.ReportedDisaster;
 import com.example.androidase_.reportingDisaster.DisasterReportAlert;
@@ -56,9 +61,19 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.navigation.NavigationView;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Target;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -67,6 +82,7 @@ import java.util.Random;
 
 import static com.example.androidase_.navigation.RouteBetweenTwoPoints.createThreadGetForRouteBetweenTwoLocations;
 import static com.example.androidase_.drivers.MapsDriver.animateUsingBound;
+import static com.example.androidase_.reportingDisaster.DisasterReport.startCircleDrawingProcess;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
 
@@ -101,12 +117,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static ArrayList<LatLng> fireStationsList = new ArrayList<>();
     public static ArrayList<LatLng> policeStationsList = new ArrayList<>();
 
+    //for mqtt
+    public static MqttAndroidClient client;
+    private static String mqttTopicPublish;
+    private static String mqttTopicSubscribe;
+
+    //for notification
+    public static Intent globalIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
         Intent intent = getIntent();
+        globalIntent = intent;
         username = intent.getStringExtra("username");
 
         //init
@@ -130,6 +154,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         assert locationManager != null;
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         initializePlaces();
+
+        connectMQTT();
 
         Button buttonShowCurrentLoc = findViewById(R.id.button_show_current_location);
         buttonShowCurrentLoc.setOnClickListener(new View.OnClickListener() {
@@ -185,46 +211,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 createThreadGetForRouteBetweenTwoLocations(url, a);
             }
         });
-
-//        MenuItem item = findViewById(R.id.logout_item);
-//        item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//                Toast.makeText(getBaseContext(), "Make text", Toast.LENGTH_SHORT).show();
-//                return true;
-//            }
-//        });
-
-//       //Option 1 to start Mqtt listener
-//        PahoMqttClient pahoMqttClient = new PahoMqttClient();
-//        MqttAndroidClient client = pahoMqttClient.getMqttClient(getApplicationContext(), MQTT_BROKER_URL, 0);
-
-        //Option 2 to start Mqtt listener
-//        Intent intent2 = new Intent(MapsActivity.this, MqttMessageServiceForMaps.class);
-//        startService(intent2);
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.navigation_maps_layout, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle item selection
-//        Log.d("qwerty42", String.valueOf(item.getItemId()));
-//        switch (item.getItemId()) {
-//            case R.id.logout_item:
-//                Toast.makeText(this, "Make text", Toast.LENGTH_SHORT).show();
-//                Log.d("qwerty42", "make text");
-//                return true;
-//            default:
-//                Log.d("qwerty42", "default");
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
 
     private void initializePlaces() throws NullPointerException {
         Places.initialize(getApplicationContext(), API_KEY);
@@ -261,17 +248,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         createDummyLocation();
         updateFireStationsListAndUI();
         updatePoliceStationsListAndUI();
-        MapsDriver.initiateRandomCircleCreation(new ReportedDisaster(), a);
+//        MapsDriver.initiateRandomCircleCreation(new ReportedDisaster(), a);
         HttpDriver.createThreadGetForBusStops(a, mMap);
 
         mMap.setTrafficEnabled(true);
-
-        mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
-            @Override
-            public void onCameraMoveStarted(int i) {
-
-            }
-        });
 
         mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
@@ -370,8 +350,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double lng = -6.310015 + r.nextDouble() * (-6.230852 + 6.310015);
         double lat = 53.330091 + r.nextDouble() * (53.359967 - 53.330091);
 
+
+        boolean fromNotification = globalIntent.getBooleanExtra("fromNotification", false);
+        Log.d("FromNotification42", String.valueOf(fromNotification));
+        if (fromNotification) {
+            LatLng disasterLocationFromIntent = new LatLng(globalIntent.getDoubleExtra("lat", 0), globalIntent.getDoubleExtra("lng", 0));
+            int radius = globalIntent.getIntExtra("radius", 0);
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("ReportingDisasterData", MODE_PRIVATE);
+            Log.d("Debug42", String.valueOf(lng));
+            Log.d("Debug42", String.valueOf(lat));
+            lat = Double.parseDouble(pref.getString("user_lat", String.valueOf(lat)));
+            lng = Double.parseDouble(pref.getString("user_lng", String.valueOf(lng)));
+            Log.d("Debug42", String.valueOf(lng));
+            Log.d("Debug42", String.valueOf(lat));
+            startCircleDrawingProcess(disasterLocationFromIntent, new LatLng(lat, lng), radius);
+        }
         LatLng currentLocation = new LatLng(lat, lng);
         globalCurrentLocation = currentLocation;
+
+        SharedPreferences.Editor editor = getSharedPreferences("ReportingDisasterData", MODE_PRIVATE).edit();
+        editor.putString("user_lat", String.valueOf(lat));
+        editor.putString("user_lng", String.valueOf(lng));
+        editor.apply();
         Marker marker = mMap.addMarker(new MarkerOptions().position(currentLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         for (Marker m : markerListCurrentLocation)
             m.remove();
@@ -383,18 +383,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-        LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-        globalCurrentLocation = currentLocation;
-        Marker marker = mMap.addMarker(new MarkerOptions().position(currentLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-        for (Marker m : markerListCurrentLocation)
-            m.remove();
-        markerListCurrentLocation.add(marker);
-        marker.setTag(-1);
-        marker.setTitle("USER LOCATION");
-        if (!isStartCurrentLocationSet) {
-            isStartCurrentLocationSet = true;
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15.0f));
-        }
+//        LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+//        globalCurrentLocation = currentLocation;
+//        Marker marker = mMap.addMarker(new MarkerOptions().position(currentLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+//        for (Marker m : markerListCurrentLocation)
+//            m.remove();
+//        markerListCurrentLocation.add(marker);
+//        marker.setTag(-1);
+//        marker.setTitle("USER LOCATION");
+//        if (!isStartCurrentLocationSet) {
+//            isStartCurrentLocationSet = true;
+//            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15.0f));
+//        }
     }
 
     @Override
@@ -424,8 +424,131 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void openPhoneApplicationFunction(MenuItem item) {
         Intent intent = new Intent(Intent.ACTION_DIAL);
-        intent.setData(Uri.parse("tel:1234###"));
+        intent.setData(Uri.parse("tel:1234567"));
         startActivity(intent);
     }
 
+    private void subscribeMQTT() {
+        Log.d("CircleDrawing42", "String.valueOf(radius)");
+        int qos = 1;
+        try {
+            IMqttToken subToken = client.subscribe(mqttTopicSubscribe, qos);
+            subToken.setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    // The message was published
+//                    status.setText("subscription is successful.");
+                    Log.d("CircleDrawing42", "Success");
+                    setMQTTCallback();
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken,
+                                      Throwable exception) {
+//                    status.setText("subscription is failed.");
+                    // The subscription could not be performed, maybe the user was not
+                    // authorized to subscribe on the specified topic e.g. using wildcards
+                    Log.d("CircleDrawing42", "Failure");
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setMQTTCallback() {
+        client.setCallback(new MqttCallback() {
+            @Override
+            public void connectionLost(Throwable cause) {
+//                status.setText("connection is lost.");
+            }
+
+            @Override
+            public void messageArrived(String topic, MqttMessage message) throws Exception {
+                Log.d("CircleDrawing42", topic);
+                String msg = new String(message.getPayload(), StandardCharsets.UTF_8);
+                Log.d("CircleDrawing42", msg);
+                String[] arr = msg.split(",");
+                double lat = Double.parseDouble(arr[0]);
+                double lng = Double.parseDouble(arr[1]);
+                double radius = Double.parseDouble(arr[2]);
+                LatLng disasterLocation = new LatLng(lat, lng);
+                Log.d("CircleDrawing42", String.valueOf(radius));
+                makeNotification("Disaster alert", "There is a disaster near you, please travel careful", disasterLocation, (int) radius);
+                startCircleDrawingProcess(disasterLocation, globalCurrentLocation, (int) radius);
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken token) {
+//                status.setText("delivery completed.");
+            }
+        });
+    }
+
+    public static void sendMessage(String payload) {
+        mqttTopicPublish = "ase/guroosh/reportingDisaster";
+        if (payload.length() > 0) {
+            byte[] encodedPayload = new byte[0];
+            try {
+                encodedPayload = payload.getBytes("UTF-8");
+                MqttMessage message = new MqttMessage(encodedPayload);
+                client.publish(mqttTopicPublish, message);
+            } catch (UnsupportedEncodingException | MqttException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void makeNotification(String title, String msg, LatLng disasterLocation, int radius) {
+        Intent notificationIntent = new Intent(getApplicationContext(), MapsActivity.class);
+        notificationIntent.putExtra("NotificationMessage", "I am from Notification");
+        notificationIntent.putExtra("fromNotification", true);
+        notificationIntent.putExtra("lat", disasterLocation.latitude);
+        notificationIntent.putExtra("lng", disasterLocation.longitude);
+        notificationIntent.putExtra("radius", radius);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("YOUR_CHANNEL_ID",
+                    "YOUR_CHANNEL_NAME",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("YOUR_NOTIFICATION_CHANNEL_DISCRIPTION");
+            mNotificationManager.createNotificationChannel(channel);
+        }
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "YOUR_CHANNEL_ID")
+                .setSmallIcon(R.mipmap.ic_launcher) // notification icon
+                .setContentTitle(title) // title for notification
+                .setContentText(msg)// message for notification
+                .setAutoCancel(true); // clear notification after click
+        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(pi);
+        mNotificationManager.notify(0, mBuilder.build());
+    }
+
+    public void connectMQTT() {
+        mqttTopicSubscribe = "ase/guroosh/verifiedDisaster";
+        String clientId = MqttClient.generateClientId();
+        client = new MqttAndroidClient(this.getApplicationContext(), "tcp://broker.hivemq.com:1883",
+                clientId);
+
+        try {
+            IMqttToken token = client.connect();
+            token.setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    // We are connected
+//                    status.setText("connection is successful.");
+                    subscribeMQTT();
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    // Something went wrong e.g. connection timeout or firewall problems
+//                    status.setText("connection is failed.");
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
 }

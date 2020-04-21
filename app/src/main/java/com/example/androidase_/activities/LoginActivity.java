@@ -164,9 +164,12 @@ public class LoginActivity extends AppCompatActivity {
                 Intent myIntent = new Intent(LoginActivity.this, VerificationActivity.class);
                 LoginActivity.this.startActivity(myIntent);
             }
-        } else if (username.equals("") && password.equals("")){
+        } else if (username.equals("") && password.equals("")) {
             //this if-else is to test, remove later
             Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
+            LoginActivity.this.startActivity(myIntent);
+        } else if (username.equals("admin") && password.equals("password")){
+            Intent myIntent = new Intent(LoginActivity.this, VerificationActivity.class);
             LoginActivity.this.startActivity(myIntent);
         } else {
             Toast.makeText(this, "Wrong username or password", Toast.LENGTH_SHORT).show();

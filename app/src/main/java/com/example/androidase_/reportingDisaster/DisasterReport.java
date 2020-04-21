@@ -2,9 +2,11 @@ package com.example.androidase_.reportingDisaster;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.androidase_.R;
+import com.example.androidase_.activities.MapsActivity;
 import com.example.androidase_.drivers.HttpDriver;
 import com.example.androidase_.object_classes.ReportedDisaster;
 import com.example.androidase_.drivers.MathOperationsDriver;
@@ -40,20 +42,6 @@ import static com.example.androidase_.drivers.MathOperationsDriver.getRandomExit
 
 public class DisasterReport {
     public static void initialiseDisasterReport(LatLng disasterLocation, ReportedDisaster reportedDisaster, boolean isDisasterOnUserLocation, Activity a) {
-        /* START code to create random circle*/
-        reportedDisaster.setLocation(disasterLocation);
-        Random r = new Random();
-        int radius = 200 + r.nextInt(1000);
-        reportedDisaster.setRadius(radius);
-        drawCircle(disasterLocation, radius, a);
-        changeCameraBound(disasterLocation, radius);
-        // todo: check if is User is Inside the circle and pass that along with isDisasterOnUserLocation
-        // todo: it will also help while creating route and rerouting so that instead of rerouting it will exit, if the user is inside
-        showExitRoute(disasterLocation, radius, isDisasterOnUserLocation, a);
-        showFireBrigadeRoute(disasterLocation, a);
-        showPoliceBrigadeRoute(disasterLocation, a);
-        /* END */
-
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("Latitude", disasterLocation.latitude);
@@ -63,7 +51,29 @@ public class DisasterReport {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        //For backend
         createThreadPostDisaster("http://" + R.string.ip_address + "/services/ds/DisasterReport/reportDisaster", jsonObject, a);
+        //For demo
+        MapsActivity.sendMessage(disasterLocation.latitude + "," + disasterLocation.longitude + "," + (System.currentTimeMillis() / 1000) + "," + username);
+    }
+
+    public static void startCircleDrawingProcess(LatLng disasterLocation, LatLng userLocation, int radius) {
+        Log.d("CircleDrawing42", String.valueOf(radius));
+        /* START code to create random circle*/
+        Activity a = new MapsActivity();
+//        reportedDisaster.setLocation(disasterLocation);
+//        Random r = new Random();
+//        int radius = 200 + r.nextInt(1000);
+//        reportedDisaster.setRadius(radius);
+        drawCircle(disasterLocation, radius, a);
+        changeCameraBound(disasterLocation, radius);
+        // todo: check if is User is Inside the circle and pass that along with isDisasterOnUserLocation
+        // todo: it will also help while creating route and rerouting so that instead of rerouting it will exit, if the user is inside
+        boolean isDisasterOnUserLocation = disasterLocation.latitude == userLocation.latitude && disasterLocation.longitude == userLocation.longitude;
+        showExitRoute(disasterLocation, radius, isDisasterOnUserLocation, a);
+        showFireBrigadeRoute(disasterLocation, a);
+        showPoliceBrigadeRoute(disasterLocation, a);
+        /* END */
     }
 
     private static void showPoliceBrigadeRoute(LatLng disasterLocation, Activity a) {
@@ -238,7 +248,7 @@ public class DisasterReport {
         fireBrigadeRoutePolylines.add(mMap.addPolyline(polyLineOptions));
     }
 
-    static void renderExitRoute(String jsonData) throws NullPointerException {
+    private static void renderExitRoute(String jsonData) throws NullPointerException {
         JSONObject jObject;
         List<List<HashMap<String, String>>> routes = null;
 
@@ -314,7 +324,7 @@ public class DisasterReport {
     }
 
 
-    public static void createThreadGetForExitRoute(final String url, final Activity a) {
+    private static void createThreadGetForExitRoute(final String url, final Activity a) {
         final String[] result = new String[1];
         Thread thread = new Thread(new Runnable() {
             @Override
