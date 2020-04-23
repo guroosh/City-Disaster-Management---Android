@@ -27,6 +27,8 @@ import java.util.Random;
 import okhttp3.Response;
 
 import static com.example.androidase_.activities.MapsActivity.API_KEY;
+import static com.example.androidase_.activities.MapsActivity.circleRadius;
+import static com.example.androidase_.activities.MapsActivity.circleCenter;
 import static com.example.androidase_.activities.MapsActivity.fireBrigadeRoutePolylines;
 import static com.example.androidase_.activities.MapsActivity.policeStationRoutePolylines;
 import static com.example.androidase_.activities.MapsActivity.fireStationsList;
@@ -65,14 +67,16 @@ public class DisasterReport {
 //        Random r = new Random();
 //        int radius = 200 + r.nextInt(1000);
 //        reportedDisaster.setRadius(radius);
+        circleCenter = disasterLocation;
+        circleRadius = radius;
         drawCircle(disasterLocation, radius, a);
         changeCameraBound(disasterLocation, radius);
         // todo: check if is User is Inside the circle and pass that along with isDisasterOnUserLocation
         // todo: it will also help while creating route and rerouting so that instead of rerouting it will exit, if the user is inside
         boolean isDisasterOnUserLocation = disasterLocation.latitude == userLocation.latitude && disasterLocation.longitude == userLocation.longitude;
-        showExitRoute(disasterLocation, radius, isDisasterOnUserLocation, a);
-        showFireBrigadeRoute(disasterLocation, a);
-        showPoliceBrigadeRoute(disasterLocation, a);
+//        showExitRoute(disasterLocation, radius, isDisasterOnUserLocation, a);
+//        showFireBrigadeRoute(disasterLocation, a);
+//        showPoliceBrigadeRoute(disasterLocation, a);
         /* END */
     }
 

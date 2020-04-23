@@ -155,8 +155,7 @@ public class LoginActivity extends AppCompatActivity {
     private void startNextActivity(boolean isCommonUser, String username, String password, boolean isUserNameSame) {
         if (!username.equals("") && !password.equals("") && isUserNameSame) {
             SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
-            if (username.contains("@"))
-            {
+            if (username.contains("@")) {
                 String[] arr = username.split("@");
                 username = arr[0];
             }
@@ -175,7 +174,7 @@ public class LoginActivity extends AppCompatActivity {
             editor.apply();
             Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
             LoginActivity.this.startActivity(myIntent);
-        } else if (username.equals("admin") && password.equals("password")){
+        } else if (username.equals("admin") && password.equals("password")) {
             SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
             editor.putString("username", "admin");
             editor.putBoolean("loggedIn", true);
@@ -210,4 +209,9 @@ public class LoginActivity extends AppCompatActivity {
         Log.d("response42", "inside the api function");
         return response;
     }
+
+//    @Override
+//    public void onBackPressed() {
+//        finish();
+//    }
 }

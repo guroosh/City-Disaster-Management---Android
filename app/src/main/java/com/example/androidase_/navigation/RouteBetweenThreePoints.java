@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.example.androidase_.activities.MapsActivity.API_KEY;
+import static com.example.androidase_.activities.MapsActivity.isNavigating;
 import static com.example.androidase_.activities.MapsActivity.mMap;
 //import static com.example.androidase_.activities.MapsActivity.previousRouteBetweenThreePoints;
 //import static com.example.androidase_.activities.MapsActivity.previousRouteBetweenTwoPoints;
@@ -189,11 +190,7 @@ public class RouteBetweenThreePoints {
             polyLineOptions.width(15);
             polyLineOptions.color(Color.BLUE);
         }
-//        try {
-            routeBetweenThreePointsPolylines.add(mMap.addPolyline(polyLineOptions));
-//        } catch (A ignored) {
-//
-//        }
+        routeBetweenThreePointsPolylines.add(mMap.addPolyline(polyLineOptions));
     }
 
     private static void deleteOldRoute() {

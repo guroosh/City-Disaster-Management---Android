@@ -120,7 +120,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //for mqtt
     public static MqttAndroidClient client;
-    private static String mqttTopicPublish;
+
+    public static boolean isNavigating = false;
 
     //for notification
     public static Intent globalIntent;
@@ -496,6 +497,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.d("CircleDrawing42", String.valueOf(radius));
                     makeNotification("Disaster alert", "There is a disaster near you, please travel careful", disasterLocation, (int) radius);
                     startCircleDrawingProcess(disasterLocation, globalCurrentLocation, (int) radius);
+                    Log.d("Navigation42", String.valueOf(isNavigating));
+                    if (isNavigating)
+                    {
+                        String url = "https://maps.googleapis.com/maps/api/directions/json?" +
+                                "origin=" + globalCurrentLocation.latitude + "," + globalCurrentLocation.longitude +
+                                "&destination=" + searchedDestination.latitude + "," + searchedDestination.longitude +
+                                "&key=" + API_KEY;
+                        createThreadGetForRouteBetweenTwoLocations(url, a);
+                    }
                 } else if (topic.equals("ase/persona/reportingDisaster")) {
                     SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
                     boolean isCommonUser = pref.getBoolean("isCommonUser", false);

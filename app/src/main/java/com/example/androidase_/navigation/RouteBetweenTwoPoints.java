@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import static com.example.androidase_.activities.MapsActivity.isNavigating;
 import static com.example.androidase_.navigation.RouteBetweenThreePoints.initialiseProcessForRouteBetweenThreePoints;
 import static com.example.androidase_.activities.MapsActivity.circleCenter;
 import static com.example.androidase_.activities.MapsActivity.circleRadius;
@@ -58,7 +59,7 @@ public class RouteBetweenTwoPoints {
         renderRouteBetweenTwoLocations(result, a);
     }
 
-    static void renderRouteBetweenTwoLocations(String jsonData, Activity a) throws NullPointerException {
+    private static void renderRouteBetweenTwoLocations(String jsonData, Activity a) throws NullPointerException {
         JSONObject jObject;
         List<List<HashMap<String, String>>> routes = null;
 
@@ -84,8 +85,12 @@ public class RouteBetweenTwoPoints {
                 double lat = Double.parseDouble(Objects.requireNonNull(point.get("lat")));
                 double lng = Double.parseDouble(Objects.requireNonNull(point.get("lng")));
                 LatLng position = new LatLng(lat, lng);
-                if (isLocationInsideCircle(lat, lng, circleRadius, circleCenter)) {
-                    isRerouteRequired = true;
+                if (circleCenter == null) {
+                    isRerouteRequired = false;
+                } else {
+                    if (isLocationInsideCircle(lat, lng, circleRadius, circleCenter)) {
+                        isRerouteRequired = true;
+                    }
                 }
                 points.add(position);
             }
@@ -95,6 +100,9 @@ public class RouteBetweenTwoPoints {
                 polyLineOptions.color(Color.BLUE);
             } else {
                 polyLineOptions.color(Color.RED);
+            }
+            if (!isRerouteRequired && isNavigating) {
+                return;
             }
         }
         if (isRerouteRequired) {
@@ -150,8 +158,7 @@ public class RouteBetweenTwoPoints {
                 extendedPointLng2 = circleCenter.longitude - 2 * ((circleRadius + (circleRadius * 0.1)) * (0.1 / 6644.971989103) * Math.cos(Math.toRadians(angleBetweenTwoPoints)));
             }
 
-            if(measureDistanceInMeters(extendedPointLat1, extendedPointLng1, currentLocation.latitude, currentLocation.longitude) > measureDistanceInMeters(extendedPointLat2, extendedPointLng2, currentLocation.latitude, currentLocation.longitude))
-            {
+            if (measureDistanceInMeters(extendedPointLat1, extendedPointLng1, currentLocation.latitude, currentLocation.longitude) > measureDistanceInMeters(extendedPointLat2, extendedPointLng2, currentLocation.latitude, currentLocation.longitude)) {
                 double temp = extendedPointLat1;
                 extendedPointLat1 = extendedPointLat2;
                 extendedPointLat2 = temp;
@@ -292,69 +299,29 @@ public class RouteBetweenTwoPoints {
 
             ArrayList<LatLng> locations = new ArrayList<>();
             locations.add(new LatLng(currentLocation.latitude, currentLocation.longitude));
-            if(isLocationInsideCircle(currentLocation.latitude, currentLocation.longitude, 2 * circleRadius, circleCenter)){
+            if (isLocationInsideCircle(currentLocation.latitude, currentLocation.longitude, 2 * circleRadius, circleCenter)) {
                 locations.add(new LatLng(extendedPointLat1, extendedPointLng1));
             }
             locations.add(new LatLng(minLatFor45_1, minLngFor45_1));
             locations.add(new LatLng(minLat, minLng));
             locations.add(new LatLng(minLatFor45_2, minLngFor45_2));
-            if(isLocationInsideCircle(searchedDestination.latitude, searchedDestination.longitude, 2 * circleRadius, circleCenter)){
+            if (isLocationInsideCircle(searchedDestination.latitude, searchedDestination.longitude, 2 * circleRadius, circleCenter)) {
                 locations.add(new LatLng(extendedPointLat2, extendedPointLng2));
             }
             locations.add(new LatLng(searchedDestination.latitude, searchedDestination.longitude));
             initialiseProcessForRouteBetweenThreePoints(locations, a);
         }
         routeBetweenTwoPointsPolylines.add(mMap.addPolyline(polyLineOptions));
-
-        /* START code to plot blue and red route, depending on inside or outside the circle */
-//        // traversing through routes
-//        assert routes != null;
-//        for (int i = 0; i < routes.size(); i++) {
-//            points = new ArrayList<>();
-//            List<HashMap<String, String>> path = routes.get(i);
-//
-//            for (int j = 0; j < path.size(); j++) {
-//                HashMap<String, String> point = path.get(j);
-//                double lat = Double.parseDouble(Objects.requireNonNull(point.get("lat")));
-//                double lng = Double.parseDouble(Objects.requireNonNull(point.get("lng")));
-//                LatLng position = new LatLng(lat, lng);
-//                points.add(position);
-//            }
-//
-//            for (int k = 0; k < points.size() - 1; k++) {
-//                LatLng point1 = points.get(k);
-//                LatLng point2 = points.get(k + 1);
-//                boolean bool1 = isLocationInsideCircle(point1.latitude, point1.longitude, circleRadius, circleCenter);
-//                boolean bool2 = isLocationInsideCircle(point2.latitude, point2.longitude, circleRadius, circleCenter);
-//                if (bool1 && bool2) {
-//                    PolylineOptions polylineOptions = new PolylineOptions();
-//                    polylineOptions.add(point1);
-//                    polylineOptions.add(point2);
-//                    polylineOptions.width(15);
-//                    polylineOptions.color(Color.RED);
-//                    polyLineOptionsList.add(polylineOptions);
-//                } else {
-//                    PolylineOptions polylineOptions = new PolylineOptions();
-//                    polylineOptions.add(point1);
-//                    polylineOptions.add(point2);
-//                    polylineOptions.width(15);
-//                    polylineOptions.color(Color.BLUE);
-//                    polyLineOptionsList.add(polylineOptions);
-//                }
-//            }
-//        }
-//        for (PolylineOptions p : polyLineOptionsList) {
-//            routeBetweenTwoPointsPolylines.add(mMap.addPolyline(p));
-//        }
-        /* END */
+        isNavigating = true;
+        Log.d("Navigation42", String.valueOf(isNavigating));
     }
 
     private static void deleteOldRoute() throws NullPointerException {
 //        if (!previousRouteBetweenTwoPoints.equals("")) {
-            for (Polyline p : routeBetweenTwoPointsPolylines) {
-                p.remove();
-            }
-            routeBetweenTwoPointsPolylines.clear();
+        for (Polyline p : routeBetweenTwoPointsPolylines) {
+            p.remove();
+        }
+        routeBetweenTwoPointsPolylines.clear();
 //        }
     }
 }
