@@ -26,7 +26,6 @@ import android.widget.Toast;
 
 import com.example.androidase_.R;
 import com.example.androidase_.activities.MapsActivity;
-import com.example.androidase_.chatbox.ChatActivity;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,6 +51,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Random;
 
 import okhttp3.MediaType;
@@ -70,13 +70,11 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
     public static boolean verificationSubmissionConfirmation = false;
     boolean isStartCurrentLocationSet_verification = false;
     public static LatLng possibleDisasterLocation;
-
-    public static boolean isDisasterReported = false;
+    public static LatLng globalUserLocation;
 
     //for mqtt
     public static MqttAndroidClient client;
-    private static String mqttTopicPublish;
-    private static String mqttTopicSubscribe;
+    public static Intent globalIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +82,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
         setContentView(R.layout.activity_verification);
 
         Intent intent = getIntent();
-        isDisasterReported = intent.getBooleanExtra("isDisasterReported", false);
+        globalIntent = intent;
         double lng = intent.getDoubleExtra("lng", 0);
         double lat = intent.getDoubleExtra("lat", 0);
         possibleDisasterLocation = new LatLng(lat, lng);
@@ -113,9 +111,9 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         /* END - setting up Maps */
 
-        Log.d("tag_verification_42", "Started connection");
+//        Log.d("tag_verification_42", "Started connection");
         connectMQTT();
-        Log.d("tag_verification_42", "Finished connection");
+//        Log.d("tag_verification_42", "Finished connection");
 
         Button submitVerification = findViewById(R.id.verification_buttonVerify);
         submitVerification.setOnClickListener(new View.OnClickListener() {
@@ -228,32 +226,34 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
     @Override
     public void onMapReady(GoogleMap googleMap) {
         verification_mMap = googleMap;
-        createDummyLocation();
+        verification_mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                createDummyLocation();
+            }
+        });
     }
+
 
     private void createDummyLocation() throws NullPointerException {
         Random r = new Random();
-        double lng = -6.310015 + r.nextDouble() * (-6.230852 + 6.310015);
-        double lat = 53.330091 + r.nextDouble() * (53.359967 - 53.330091);
+        double lng = globalIntent.getDoubleExtra("user_lng", -6.310015 + r.nextDouble() * (-6.230852 + 6.310015));
+        double lat = globalIntent.getDoubleExtra("user_lat", 53.330091 + r.nextDouble() * (53.359967 - 53.330091));
 
         LatLng currentLocation = new LatLng(lat, lng);
+        globalUserLocation = currentLocation;
         Marker marker = verification_mMap.addMarker(new MarkerOptions().position(currentLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         for (Marker m : verificationMarkerListCurrentLocation)
             m.remove();
         verificationMarkerListCurrentLocation.add(marker);
         marker.setTag(-1);
         marker.setTitle("USER LOCATION");
-        if (isDisasterReported) {
-            Marker possibleDisasterMarker = verification_mMap.addMarker(new MarkerOptions().position(possibleDisasterLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            for (Marker m : markerListPossibleDisaster)
-                m.remove();
-            markerListPossibleDisaster.add(possibleDisasterMarker);
-            possibleDisasterMarker.setTitle("Reported Disaster");
-            animateUsingBound(verificationMarkerListCurrentLocation.get(verificationMarkerListCurrentLocation.size() - 1).getPosition(), markerListPossibleDisaster.get(markerListPossibleDisaster.size() - 1).getPosition(), 100);
-        } else {
-            Toast.makeText(getApplicationContext(), "Else", Toast.LENGTH_SHORT).show();
-            verification_mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(verificationMarkerListCurrentLocation.get(verificationMarkerListCurrentLocation.size() - 1).getPosition(), 15.0f));
-        }
+        for (Marker m : markerListPossibleDisaster)
+            m.remove();
+        Marker possibleDisasterMarker = verification_mMap.addMarker(new MarkerOptions().position(possibleDisasterLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        markerListPossibleDisaster.add(possibleDisasterMarker);
+        possibleDisasterMarker.setTitle("Reported Disaster");
+        animateUsingBound(verificationMarkerListCurrentLocation.get(verificationMarkerListCurrentLocation.size() - 1).getPosition(), markerListPossibleDisaster.get(markerListPossibleDisaster.size() - 1).getPosition(), 100);
     }
 
     public static void animateUsingBound(LatLng pos1, LatLng pos2, int padding) {
@@ -282,7 +282,6 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
     }
 
     public void connectMQTT() {
-        mqttTopicSubscribe = "ase/guroosh/reportingDisaster";
         String clientId = MqttClient.generateClientId();
         client = new MqttAndroidClient(this.getApplicationContext(), "tcp://broker.hivemq.com:1883",
                 clientId);
@@ -312,7 +311,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
     private void subscribeMQTT() {
         int qos = 1;
         try {
-            IMqttToken subToken = client.subscribe(mqttTopicSubscribe, qos);
+            IMqttToken subToken = client.subscribe("ase/persona/verifiedDisaster", qos);
             subToken.setActionCallback(new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -345,21 +344,34 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-//                status.setText("message is received.");
-                Log.d("tag_verification_42", topic + ": " + message);
                 String msg = new String(message.getPayload(), StandardCharsets.UTF_8);
                 String[] arr = msg.split(",");
                 double lat = Double.parseDouble(arr[0]);
                 double lng = Double.parseDouble(arr[1]);
-                makeNotification("New Disaster Reported", msg, lat, lng);
-                possibleDisasterLocation = new LatLng(lat, lng);
-                isDisasterReported = true;
-                for (Marker m : markerListPossibleDisaster)
-                    m.remove();
-                Marker possibleDisasterMarker = verification_mMap.addMarker(new MarkerOptions().position(possibleDisasterLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                markerListPossibleDisaster.add(possibleDisasterMarker);
-                possibleDisasterMarker.setTitle("Reported Disaster");
-                animateUsingBound(verificationMarkerListCurrentLocation.get(verificationMarkerListCurrentLocation.size() - 1).getPosition(), markerListPossibleDisaster.get(markerListPossibleDisaster.size() - 1).getPosition(), 100);
+                double radius = Double.parseDouble(arr[2]);
+                Intent myIntent = new Intent(VerificationActivity.this, MapsActivity.class);
+                myIntent.putExtra("fromVerification", true);
+                myIntent.putExtra("disaster_lat", lat);
+                myIntent.putExtra("disaster_lng", lng);
+                myIntent.putExtra("user_lat", globalUserLocation.latitude);
+                myIntent.putExtra("user_lng", globalUserLocation.longitude);
+                myIntent.putExtra("radius", radius);
+//                startCircleDrawingProcess(disasterLocation, globalCurrentLocation, (int) radius);
+                VerificationActivity.this.startActivity(myIntent);
+                //                status.setText("message is received.");
+//                Log.d("tag_verification_42", topic + ": " + message);
+//                String msg = new String(message.getPayload(), StandardCharsets.UTF_8);
+//                String[] arr = msg.split(",");
+//                double lat = Double.parseDouble(arr[0]);
+//                double lng = Double.parseDouble(arr[1]);
+//                makeNotification("New Disaster Reported", msg, lat, lng);
+//                possibleDisasterLocation = new LatLng(lat, lng);
+//                for (Marker m : markerListPossibleDisaster)
+//                    m.remove();
+//                Marker possibleDisasterMarker = verification_mMap.addMarker(new MarkerOptions().position(possibleDisasterLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+//                markerListPossibleDisaster.add(possibleDisasterMarker);
+//                possibleDisasterMarker.setTitle("Reported Disaster");
+//                animateUsingBound(verificationMarkerListCurrentLocation.get(verificationMarkerListCurrentLocation.size() - 1).getPosition(), markerListPossibleDisaster.get(markerListPossibleDisaster.size() - 1).getPosition(), 100);
             }
 
             @Override
@@ -369,15 +381,13 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
         });
     }
 
-    public static void sendMessage(String payload) {
-        mqttTopicPublish = "ase/guroosh/verifiedDisaster";
+    public static void sendMessage(String topic, String payload) {
         if (payload.length() > 0) {
             byte[] encodedPayload = new byte[0];
             try {
                 encodedPayload = payload.getBytes("UTF-8");
                 MqttMessage message = new MqttMessage(encodedPayload);
-                Log.d("CircleDrawing42", mqttTopicPublish + ": " + message);
-                client.publish(mqttTopicPublish, message);
+                client.publish(topic, message);
             } catch (UnsupportedEncodingException | MqttException e) {
                 e.printStackTrace();
             }

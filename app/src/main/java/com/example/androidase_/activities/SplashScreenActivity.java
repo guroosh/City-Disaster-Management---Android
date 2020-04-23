@@ -29,46 +29,23 @@ public class SplashScreenActivity extends AppCompatActivity {
         loggedIn = pref.getBoolean("loggedIn", false);
 
         int SPLASH_TIME_OUT = 3000;
-
-//        Random r = new Random();
-//        int rInt = r.nextInt(2);
-        final boolean[] isCommonUser = new boolean[1];
-//        isCommonUser[0] = (rInt != 0);
-        isCommonUser[0] = true;
-//        Button button = findViewById(R.id.isAdmin);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                isCommonUser[0] = false;
-//            }
-//        });
-
         if (loggedIn) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (isCommonUser[0]) {
-                        Intent intent = new Intent(SplashScreenActivity.this, MapsActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Intent intent = new Intent(SplashScreenActivity.this, VerificationActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
+                    Intent intent = new Intent(SplashScreenActivity.this, MapsActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
             }, SPLASH_TIME_OUT);
         } else {
             new Handler().postDelayed(new Runnable() {
-
                 @Override
                 public void run() {
                     Intent intent = new Intent(SplashScreenActivity.this, LoginActivity.class);
-//                    intent.putExtra("isCommonUser", isCommonUser[0]);
                     startActivity(intent);
                     finish();
                 }
-
             }, SPLASH_TIME_OUT);
         }
     }

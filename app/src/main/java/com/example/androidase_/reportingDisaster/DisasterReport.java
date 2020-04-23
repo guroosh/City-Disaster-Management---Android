@@ -52,9 +52,9 @@ public class DisasterReport {
             e.printStackTrace();
         }
         //For backend
-        createThreadPostDisaster("http://" + R.string.ip_address + "/services/ds/DisasterReport/reportDisaster", jsonObject, a);
+//        createThreadPostDisaster("http://" + R.string.ip_address + "/services/ds/DisasterReport/reportDisaster", jsonObject, a);
         //For demo
-        MapsActivity.sendMessage(disasterLocation.latitude + "," + disasterLocation.longitude + "," + (System.currentTimeMillis() / 1000) + "," + username);
+        MapsActivity.sendMessage("ase/persona/reportingDisaster", disasterLocation.latitude + "," + disasterLocation.longitude + "," + (System.currentTimeMillis() / 1000));
     }
 
     public static void startCircleDrawingProcess(LatLng disasterLocation, LatLng userLocation, int radius) {

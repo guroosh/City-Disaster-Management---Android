@@ -47,7 +47,7 @@ public class VerificationAlertBox {
                         //For demo
                         if (isInfoTrue) {
                             Log.d("CircleDrawing42", "sending message");
-                            VerificationActivity.sendMessage(latitude + "," + longitude + "," + radius);
+                            VerificationActivity.sendMessage("ase/persona/verifiedDisaster", latitude + "," + longitude + "," + radius);
                         }
                     }
                 });

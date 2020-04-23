@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -28,6 +29,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
 
@@ -37,11 +39,14 @@ public class ChatActivity extends AppCompatActivity {
     private EditText editText;
     private MessageAdapter messageAdapter;
     private ListView messagesView;
-    public MemberData data;
 
     public String randomString;
     private MqttAndroidClient client;
     private String mqttTopic;
+
+    public static String username;
+
+    public static HashMap<String, String> nameToColor = new HashMap<>();
 
 
     @Override
@@ -49,23 +54,25 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting);
 
-        editText = findViewById(R.id.editText);
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
+        username = pref.getString("username", "null");
 
+        editText = findViewById(R.id.editText);
         messageAdapter = new MessageAdapter(this);
         messagesView = findViewById(R.id.messages_view);
         messagesView.setAdapter(messageAdapter);
         randomString = UUID.randomUUID().toString();
 
-        data = new MemberData(getRandomName(), getRandomColor());
+//        data = new MemberData(getRandomName(), getRandomColor());
 
         connectMQTT();
     }
 
     public void sendMessage(View view) {
         String payload = editText.getText().toString();
-        payload = randomString + payload;
+        payload = randomString + username + ":" + payload;
         if (payload.length() > 0) {
-            byte[] encodedPayload = new byte[0];
+            byte[] encodedPayload;
             try {
                 encodedPayload = payload.getBytes("UTF-8");
                 MqttMessage message = new MqttMessage(encodedPayload);
@@ -80,14 +87,25 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
-    private void publishMessage(String receivedMessage, boolean isItMyMessage) {
+    private void showMessageOnScreen(String receivedMessage, boolean isItMyMessage) {
+        String[] arr = receivedMessage.split(":");
+        String messageText = arr[1];
+        String theirUsername = arr[0];
+        MemberData data;
+        if (nameToColor.containsKey(theirUsername)) {
+            data = new MemberData(theirUsername, nameToColor.get(theirUsername));
+        } else {
+            String randomColor = getRandomColor();
+            data = new MemberData(theirUsername, randomColor);
+            nameToColor.put(theirUsername, randomColor);
+        }
         Random r = new Random();
         int i = r.nextInt(2);
         final Message message;
         if (i == 0) {
-            message = new Message(receivedMessage, data, isItMyMessage);
+            message = new Message(messageText, data, isItMyMessage);
         } else {
-            message = new Message(receivedMessage, data, isItMyMessage);
+            message = new Message(messageText, data, isItMyMessage);
         }
         runOnUiThread(new Runnable() {
             @Override
@@ -96,16 +114,6 @@ public class ChatActivity extends AppCompatActivity {
                 messagesView.setSelection(messagesView.getCount() - 1);
             }
         });
-    }
-
-    private String getRandomName() {
-        String[] adjs = {"autumn", "hidden", "bitter", "misty", "silent", "empty", "dry", "dark", "summer", "icy", "delicate", "quiet", "white", "cool", "spring", "winter", "patient", "twilight", "dawn", "crimson", "wispy", "weathered", "blue", "billowing", "broken", "cold", "damp", "falling", "frosty", "green", "long", "late", "lingering", "bold", "little", "morning", "muddy", "old", "red", "rough", "still", "small", "sparkling", "throbbing", "shy", "wandering", "withered", "wild", "black", "young", "holy", "solitary", "fragrant", "aged", "snowy", "proud", "floral", "restless", "divine", "polished", "ancient", "purple", "lively", "nameless"};
-        String[] nouns = {"waterfall", "river", "breeze", "moon", "rain", "wind", "sea", "morning", "snow", "lake", "sunset", "pine", "shadow", "leaf", "dawn", "glitter", "forest", "hill", "cloud", "meadow", "sun", "glade", "bird", "brook", "butterfly", "bush", "dew", "dust", "field", "fire", "flower", "firefly", "feather", "grass", "haze", "mountain", "night", "pond", "darkness", "snowflake", "silence", "sound", "sky", "shape", "surf", "thunder", "violet", "water", "wildflower", "wave", "water", "resonance", "sun", "wood", "dream", "cherry", "tree", "fog", "frost", "voice", "paper", "frog", "smoke", "star"};
-        return (
-                adjs[(int) Math.floor(Math.random() * adjs.length)] +
-                        "_" +
-                        nouns[(int) Math.floor(Math.random() * nouns.length)]
-        );
     }
 
     private String getRandomColor() {
@@ -190,7 +198,7 @@ public class ChatActivity extends AppCompatActivity {
                     msg = msg.substring(36);
                     makeNotification("Chat support", msg);
                 }
-                publishMessage(msg, isItMyMessage);
+                showMessageOnScreen(msg, isItMyMessage);
             }
 
             @Override

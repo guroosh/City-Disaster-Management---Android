@@ -155,21 +155,33 @@ public class LoginActivity extends AppCompatActivity {
     private void startNextActivity(boolean isCommonUser, String username, String password, boolean isUserNameSame) {
         if (!username.equals("") && !password.equals("") && isUserNameSame) {
             SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
-            editor.putBoolean("loggedIn", true);
-            editor.apply();
-            if (isCommonUser) {
-                Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
-                LoginActivity.this.startActivity(myIntent);
-            } else {
-                Intent myIntent = new Intent(LoginActivity.this, VerificationActivity.class);
-                LoginActivity.this.startActivity(myIntent);
+            if (username.contains("@"))
+            {
+                String[] arr = username.split("@");
+                username = arr[0];
             }
+            editor.putString("username", username);
+            editor.putBoolean("loggedIn", true);
+            editor.putBoolean("isCommonUser", true);
+            editor.apply();
+            Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
+            LoginActivity.this.startActivity(myIntent);
         } else if (username.equals("") && password.equals("")) {
             //this if-else is to test, remove later
+            SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
+            editor.putString("username", "anonymous");
+            editor.putBoolean("loggedIn", true);
+            editor.putBoolean("isCommonUser", true);
+            editor.apply();
             Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
             LoginActivity.this.startActivity(myIntent);
         } else if (username.equals("admin") && password.equals("password")){
-            Intent myIntent = new Intent(LoginActivity.this, VerificationActivity.class);
+            SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
+            editor.putString("username", "admin");
+            editor.putBoolean("loggedIn", true);
+            editor.putBoolean("isCommonUser", false);
+            editor.apply();
+            Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
             LoginActivity.this.startActivity(myIntent);
         } else {
             Toast.makeText(this, "Wrong username or password", Toast.LENGTH_SHORT).show();

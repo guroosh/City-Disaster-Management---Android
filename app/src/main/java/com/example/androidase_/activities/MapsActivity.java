@@ -42,6 +42,7 @@ import com.example.androidase_.drivers.MapsDriver;
 import com.example.androidase_.object_classes.ReportedDisaster;
 import com.example.androidase_.reportingDisaster.DisasterReportAlert;
 import com.example.androidase_.drivers.HttpDriver;
+import com.example.androidase_.verification.VerificationActivity;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -120,7 +121,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //for mqtt
     public static MqttAndroidClient client;
     private static String mqttTopicPublish;
-    private static String mqttTopicSubscribe;
 
     //for notification
     public static Intent globalIntent;
@@ -129,9 +129,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        Intent intent = getIntent();
-        globalIntent = intent;
-        username = intent.getStringExtra("username");
+        globalIntent = getIntent();
+
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
+        username = pref.getString("username", "null");
 
         //init
         API_KEY = "AIzaSyBPOVbWCZG6Weeunh-J2-t3NiyG_1-NXpQ";
@@ -245,7 +246,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
-        createDummyLocation();
+        boolean fromVerification = globalIntent.getBooleanExtra("fromVerification", false);
+
+        if (fromVerification) {
+            double disasterLat = globalIntent.getDoubleExtra("disaster_lat", 0);
+            double disasterLng = globalIntent.getDoubleExtra("disaster_lng", 0);
+            double userLat = globalIntent.getDoubleExtra("user_lat", 0);
+            double userLng = globalIntent.getDoubleExtra("user_lng", 0);
+            int radius = (int) globalIntent.getDoubleExtra("radius", 0);
+            Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLat, userLng)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            for (Marker m : markerListCurrentLocation)
+                m.remove();
+            markerListCurrentLocation.add(marker);
+            marker.setTag(-1);
+            marker.setTitle("USER LOCATION");
+            startCircleDrawingProcess(new LatLng(disasterLat, disasterLng), new LatLng(userLat, userLng), (int) radius);
+        } else {
+            // add more if-else for (fromNotification)
+            createDummyLocation();
+        }
         updateFireStationsListAndUI();
         updatePoliceStationsListAndUI();
 //        MapsDriver.initiateRandomCircleCreation(new ReportedDisaster(), a);
@@ -353,18 +372,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         boolean fromNotification = globalIntent.getBooleanExtra("fromNotification", false);
         Log.d("FromNotification42", String.valueOf(fromNotification));
-        if (fromNotification) {
-            LatLng disasterLocationFromIntent = new LatLng(globalIntent.getDoubleExtra("lat", 0), globalIntent.getDoubleExtra("lng", 0));
-            int radius = globalIntent.getIntExtra("radius", 0);
-            SharedPreferences pref = getApplicationContext().getSharedPreferences("ReportingDisasterData", MODE_PRIVATE);
-            Log.d("Debug42", String.valueOf(lng));
-            Log.d("Debug42", String.valueOf(lat));
-            lat = Double.parseDouble(pref.getString("user_lat", String.valueOf(lat)));
-            lng = Double.parseDouble(pref.getString("user_lng", String.valueOf(lng)));
-            Log.d("Debug42", String.valueOf(lng));
-            Log.d("Debug42", String.valueOf(lat));
-            startCircleDrawingProcess(disasterLocationFromIntent, new LatLng(lat, lng), radius);
-        }
+//        if (fromNotification) {
+//            LatLng disasterLocationFromIntent = new LatLng(globalIntent.getDoubleExtra("lat", 0), globalIntent.getDoubleExtra("lng", 0));
+//            int radius = globalIntent.getIntExtra("radius", 0);
+//            SharedPreferences pref = getApplicationContext().getSharedPreferences("ReportingDisasterData", MODE_PRIVATE);
+//            Log.d("Debug42", String.valueOf(lng));
+//            Log.d("Debug42", String.valueOf(lat));
+//            lat = Double.parseDouble(pref.getString("user_lat", String.valueOf(lat)));
+//            lng = Double.parseDouble(pref.getString("user_lng", String.valueOf(lng)));
+//            Log.d("Debug42", String.valueOf(lng));
+//            Log.d("Debug42", String.valueOf(lat));
+//            startCircleDrawingProcess(disasterLocationFromIntent, new LatLng(lat, lng), radius);
+//        }
         LatLng currentLocation = new LatLng(lat, lng);
         globalCurrentLocation = currentLocation;
 
@@ -432,7 +451,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("CircleDrawing42", "String.valueOf(radius)");
         int qos = 1;
         try {
-            IMqttToken subToken = client.subscribe(mqttTopicSubscribe, qos);
+            IMqttToken subToken = client.subscribe(new String[]{"ase/persona/verifiedDisaster", "ase/persona/reportingDisaster"}, new int[]{qos, qos});
             subToken.setActionCallback(new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -464,18 +483,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
             @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
-                Log.d("CircleDrawing42", topic);
+            public void messageArrived(String topic, MqttMessage message) {
                 String msg = new String(message.getPayload(), StandardCharsets.UTF_8);
-                Log.d("CircleDrawing42", msg);
                 String[] arr = msg.split(",");
                 double lat = Double.parseDouble(arr[0]);
                 double lng = Double.parseDouble(arr[1]);
                 double radius = Double.parseDouble(arr[2]);
-                LatLng disasterLocation = new LatLng(lat, lng);
-                Log.d("CircleDrawing42", String.valueOf(radius));
-                makeNotification("Disaster alert", "There is a disaster near you, please travel careful", disasterLocation, (int) radius);
-                startCircleDrawingProcess(disasterLocation, globalCurrentLocation, (int) radius);
+                if (topic.equals("ase/persona/verifiedDisaster")) {
+                    Log.d("CircleDrawing42", topic);
+                    Log.d("CircleDrawing42", msg);
+                    LatLng disasterLocation = new LatLng(lat, lng);
+                    Log.d("CircleDrawing42", String.valueOf(radius));
+                    makeNotification("Disaster alert", "There is a disaster near you, please travel careful", disasterLocation, (int) radius);
+                    startCircleDrawingProcess(disasterLocation, globalCurrentLocation, (int) radius);
+                } else if (topic.equals("ase/persona/reportingDisaster")) {
+                    SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
+                    boolean isCommonUser = pref.getBoolean("isCommonUser", false);
+                    if (!isCommonUser) {
+                        Intent myIntent = new Intent(MapsActivity.this, VerificationActivity.class);
+                        myIntent.putExtra("lat", lat);
+                        myIntent.putExtra("lng", lng);
+                        myIntent.putExtra("user_lat", globalCurrentLocation.latitude);
+                        myIntent.putExtra("user_lng", globalCurrentLocation.longitude);
+                        MapsActivity.this.startActivity(myIntent);
+                    }
+                }
             }
 
             @Override
@@ -485,14 +517,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    public static void sendMessage(String payload) {
-        mqttTopicPublish = "ase/guroosh/reportingDisaster";
+    public static void sendMessage(String topic, String payload) {
         if (payload.length() > 0) {
             byte[] encodedPayload = new byte[0];
             try {
                 encodedPayload = payload.getBytes("UTF-8");
                 MqttMessage message = new MqttMessage(encodedPayload);
-                client.publish(mqttTopicPublish, message);
+                client.publish(topic, message);
             } catch (UnsupportedEncodingException | MqttException e) {
                 e.printStackTrace();
             }
@@ -526,7 +557,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void connectMQTT() {
-        mqttTopicSubscribe = "ase/guroosh/verifiedDisaster";
         String clientId = MqttClient.generateClientId();
         client = new MqttAndroidClient(this.getApplicationContext(), "tcp://broker.hivemq.com:1883",
                 clientId);
