@@ -96,11 +96,11 @@ public class RouteBetweenTwoPoints {
             }
             polyLineOptions.addAll(points);
             polyLineOptions.width(15);
-            if (!isRerouteRequired) {
-                polyLineOptions.color(Color.BLUE);
-            } else {
-                polyLineOptions.color(Color.RED);
-            }
+//            if (!isRerouteRequired) {
+//                polyLineOptions.color(Color.BLUE);
+//            } else {
+//                polyLineOptions.color(Color.RED);
+//            }
             if (!isRerouteRequired && isNavigating) {
                 return;
             }
@@ -311,7 +311,12 @@ public class RouteBetweenTwoPoints {
             locations.add(new LatLng(searchedDestination.latitude, searchedDestination.longitude));
             initialiseProcessForRouteBetweenThreePoints(locations, a);
         }
-        routeBetweenTwoPointsPolylines.add(mMap.addPolyline(polyLineOptions));
+        if (!isRerouteRequired) {
+            routeBetweenTwoPointsPolylines.add(mMap.addPolyline(polyLineOptions));
+        } else {
+            //don't plot route through the disaster
+        }
+
         isNavigating = true;
         Log.d("Navigation42", String.valueOf(isNavigating));
     }

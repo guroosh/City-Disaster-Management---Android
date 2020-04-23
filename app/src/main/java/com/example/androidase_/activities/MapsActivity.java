@@ -247,56 +247,61 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
-        boolean fromVerification = globalIntent.getBooleanExtra("fromVerification", false);
-
-        if (fromVerification) {
-            double disasterLat = globalIntent.getDoubleExtra("disaster_lat", 0);
-            double disasterLng = globalIntent.getDoubleExtra("disaster_lng", 0);
-            double userLat = globalIntent.getDoubleExtra("user_lat", 0);
-            double userLng = globalIntent.getDoubleExtra("user_lng", 0);
-            int radius = (int) globalIntent.getDoubleExtra("radius", 0);
-            Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLat, userLng)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-            for (Marker m : markerListCurrentLocation)
-                m.remove();
-            markerListCurrentLocation.add(marker);
-            marker.setTag(-1);
-            marker.setTitle("USER LOCATION");
-            startCircleDrawingProcess(new LatLng(disasterLat, disasterLng), new LatLng(userLat, userLng), (int) radius);
-        } else {
-            // add more if-else for (fromNotification)
-            createDummyLocation();
-        }
-        updateFireStationsListAndUI();
-        updatePoliceStationsListAndUI();
-//        MapsDriver.initiateRandomCircleCreation(new ReportedDisaster(), a);
-        HttpDriver.createThreadGetForBusStops(a, mMap);
-
-        mMap.setTrafficEnabled(true);
-
-        mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
-            public void onCameraIdle() {
-                LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
-                LatLng southWest = bounds.southwest;
-                LatLng northEast = bounds.northeast;
-                double screenWidth = Math.abs(northEast.longitude - southWest.longitude);
-                LatLng newSouthWest = new LatLng(southWest.latitude - screenWidth, southWest.longitude - screenWidth);
-                LatLng newNorthEast = new LatLng(northEast.latitude + screenWidth, northEast.longitude + screenWidth);
-                bounds = new LatLngBounds(newSouthWest, newNorthEast);
+            public void onMapLoaded() {
+                boolean fromVerification = globalIntent.getBooleanExtra("fromVerification", false);
+                if (fromVerification) {
+                    double disasterLat = globalIntent.getDoubleExtra("disaster_lat", 0);
+                    double disasterLng = globalIntent.getDoubleExtra("disaster_lng", 0);
+                    double userLat = globalIntent.getDoubleExtra("user_lat", 0);
+                    double userLng = globalIntent.getDoubleExtra("user_lng", 0);
+                    int radius = (int) globalIntent.getDoubleExtra("radius", 0);
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLat, userLng)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                    for (Marker m : markerListCurrentLocation)
+                        m.remove();
+                    markerListCurrentLocation.add(marker);
+                    marker.setTag(-1);
+                    marker.setTitle("USER LOCATION");
+                    startCircleDrawingProcess(new LatLng(disasterLat, disasterLng), new LatLng(userLat, userLng), (int) radius);
+                } else {
+                    // add more if-else for (fromNotification)
+                    createDummyLocation();
+                }
+                updateFireStationsListAndUI();
+                updatePoliceStationsListAndUI();
+//        MapsDriver.initiateRandomCircleCreation(new ReportedDisaster(), a);
+                HttpDriver.createThreadGetForBusStops(a, mMap);
 
-                // code for plotting bus stops on screen
-                HashMap<String, LatLng> busStopsOnScreenMap = new HashMap<>();
-                for (Map.Entry<String, LatLng> entry : busStopList.entrySet()) {
-                    LatLng busStop = entry.getValue();
-                    if (bounds.contains(busStop)) {
-                        busStopsOnScreenMap.put(entry.getKey(), entry.getValue());
-                    }
-                }
-                MapsDriver.deleteBusStopsPreviouslyOnScreen();
-                if (mMap.getCameraPosition().zoom > 13) {
+                mMap.setTrafficEnabled(true);
+
+                mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+                    @Override
+                    public void onCameraIdle() {
+                        LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
+                        LatLng southWest = bounds.southwest;
+                        LatLng northEast = bounds.northeast;
+                        double screenWidth = Math.abs(northEast.longitude - southWest.longitude);
+                        LatLng newSouthWest = new LatLng(southWest.latitude - screenWidth, southWest.longitude - screenWidth);
+                        LatLng newNorthEast = new LatLng(northEast.latitude + screenWidth, northEast.longitude + screenWidth);
+                        bounds = new LatLngBounds(newSouthWest, newNorthEast);
+
+                        // code for plotting bus stops on screen
+                        HashMap<String, LatLng> busStopsOnScreenMap = new HashMap<>();
+                        for (Map.Entry<String, LatLng> entry : busStopList.entrySet()) {
+                            LatLng busStop = entry.getValue();
+                            if (bounds.contains(busStop)) {
+                                busStopsOnScreenMap.put(entry.getKey(), entry.getValue());
+                            }
+                        }
+                        MapsDriver.deleteBusStopsPreviouslyOnScreen();
+                        if (mMap.getCameraPosition().zoom > 13) {
 //                    MapsDriver.plotBusStopsOnScreen(busStopsOnScreenMap, a);
-                }
-                Log.d("camera42", String.valueOf(mMap.getCameraPosition().zoom));
+                        }
+                        Log.d("camera42", String.valueOf(mMap.getCameraPosition().zoom));
+                    }
+                });
+
             }
         });
     }
@@ -498,8 +503,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     makeNotification("Disaster alert", "There is a disaster near you, please travel careful", disasterLocation, (int) radius);
                     startCircleDrawingProcess(disasterLocation, globalCurrentLocation, (int) radius);
                     Log.d("Navigation42", String.valueOf(isNavigating));
-                    if (isNavigating)
-                    {
+                    if (isNavigating) {
                         String url = "https://maps.googleapis.com/maps/api/directions/json?" +
                                 "origin=" + globalCurrentLocation.latitude + "," + globalCurrentLocation.longitude +
                                 "&destination=" + searchedDestination.latitude + "," + searchedDestination.longitude +
