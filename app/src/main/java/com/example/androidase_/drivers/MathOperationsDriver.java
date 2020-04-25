@@ -32,8 +32,8 @@ public class MathOperationsDriver {
         angleInRadians = Math.toRadians(degree);
         lat = disasterLocation.latitude;
         lng = disasterLocation.longitude;
-        newLat = lat + ((radius + (radius * 0.1)) * (0.1 / 11131.94907932) * Math.sin(angleInRadians));
-        newLng = lng + ((radius + (radius * 0.1)) * (0.1 / 6644.971989103) * Math.cos(angleInRadians));
+        newLat = lat + ((2 * radius + (radius * 0.1)) * (0.1 / 11131.94907932) * Math.sin(angleInRadians));
+        newLng = lng + ((2 * radius + (radius * 0.1)) * (0.1 / 6644.971989103) * Math.cos(angleInRadians));
         return new LatLng(newLat, newLng);
     }
 
@@ -47,8 +47,8 @@ public class MathOperationsDriver {
                 degree = Math.toRadians(degree);
                 lat = disasterLocation.latitude;
                 lng = disasterLocation.longitude;
-                newLat = lat + ((radius + (radius * 0.1)) * (0.1 / 11131.94907932) * Math.sin(degree));
-                newLng = lng + ((radius + (radius * 0.1)) * (0.1 / 6644.971989103) * Math.cos(degree));
+                newLat = lat + ((2 * radius + (radius * 0.1)) * (0.1 / 11131.94907932) * Math.sin(degree));
+                newLng = lng + ((2 * radius + (radius * 0.1)) * (0.1 / 6644.971989103) * Math.cos(degree));
                 returnArray.add(new LatLng(newLat, newLng));
             }
         } else {
@@ -59,8 +59,8 @@ public class MathOperationsDriver {
                 double newDegree = degree + shift;
                 lat = disasterLocation.latitude;
                 lng = disasterLocation.longitude;
-                newLat = lat + returnShift.shiftForSecondAndThirdQuadrant * ((radius + (radius * 0.1)) * (0.1 / 11131.94907932) * Math.sin(Math.toRadians(newDegree)));
-                newLng = lng + returnShift.shiftForSecondAndThirdQuadrant * ((radius + (radius * 0.1)) * (0.1 / 6644.971989103) * Math.cos(Math.toRadians(newDegree)));
+                newLat = lat + returnShift.shiftForSecondAndThirdQuadrant * ((2 * radius + (radius * 0.1)) * (0.1 / 11131.94907932) * Math.sin(Math.toRadians(newDegree)));
+                newLng = lng + returnShift.shiftForSecondAndThirdQuadrant * ((2 * radius + (radius * 0.1)) * (0.1 / 6644.971989103) * Math.cos(Math.toRadians(newDegree)));
                 returnArray.add(new LatLng(newLat, newLng));
             }
         }

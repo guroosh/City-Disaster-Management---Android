@@ -6,8 +6,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -16,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
 import com.example.androidase_.R;
+import com.example.androidase_.activities.LoginActivity;
 import com.example.androidase_.activities.MapsActivity;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -79,7 +82,7 @@ public class ChatActivity extends AppCompatActivity {
 
     public void sendMessage(View view) {
         String payload = editText.getText().toString();
-        sendRequestToFirebase(payload);
+        sendRequestToFirebase("MY_TOPIC", username, payload);
         payload = randomString + username + ":" + payload;
         if (payload.length() > 0) {
             byte[] encodedPayload;
@@ -96,17 +99,16 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    private void sendRequestToFirebase(String message) {
+    private void sendRequestToFirebase(final String topic, final String title, final String message) {
         final int[] code = new int[1];
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                   code[0] = pushToFirebase();
+                    code[0] = pushToFirebase(topic, title, message);
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
-                finally {
+                } finally {
                     Log.d("Firebase42", "done?: " + code[0]);
                 }
             }
@@ -114,16 +116,16 @@ public class ChatActivity extends AppCompatActivity {
         thread.start();
     }
 
-    private int pushToFirebase() throws JSONException {
+    private int pushToFirebase(String topic, String title, String message) throws JSONException {
         final MediaType JSON = MediaType.get("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();
         JSONObject object = new JSONObject();
         JSONObject innerObject = new JSONObject();
-        innerObject.put("title", "No title found");
-        innerObject.put("body", "Message lost in transition");
+        innerObject.put("title", title);
+        innerObject.put("body", message);
         innerObject.put("content_available", true);
         innerObject.put("priority", "high");
-        object.put("to", "/topics/MY_TOPIC");
+        object.put("to", "/topics/" + topic);
         object.put("notification", innerObject);
         RequestBody body = RequestBody.create(object.toString(), JSON);
         Request request = new Request.Builder()
@@ -134,7 +136,7 @@ public class ChatActivity extends AppCompatActivity {
                 .build();
         Response response = null;
         try {
-             response = client.newCall(request).execute();
+            response = client.newCall(request).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -285,5 +287,23 @@ public class ChatActivity extends AppCompatActivity {
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(pi);
         mNotificationManager.notify(0, mBuilder.build());
+    }
+
+    public void logoutFunction(MenuItem item) {
+        SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
+        editor.putBoolean("loggedIn", false);
+        editor.apply();
+        Intent myIntent = new Intent(ChatActivity.this, LoginActivity.class);
+        ChatActivity.this.startActivity(myIntent);
+    }
+
+    public void openChatBoxFunction(MenuItem item) {
+        
+    }
+
+    public void openPhoneApplicationFunction(MenuItem item) {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:1234567"));
+        startActivity(intent);
     }
 }

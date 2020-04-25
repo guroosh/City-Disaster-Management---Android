@@ -58,7 +58,7 @@ public class VerificationAlertBox {
                             getExitEntryRoutesAndPost(new LatLng(latitude, longitude), a, radius);
                             //For demo
                             Log.d("CircleDrawing42", "sending message");
-                            sendRequestToFirebase("verifiedDisaster", "Alert", "There is a disaster near you. Please be careful.", latitude, longitude, radius);
+                            sendRequestToFirebase("MY_TOPIC", "Alert", "There is a disaster near you. Please be careful.", latitude, longitude, radius);
                             VerificationActivity.sendMessage("ase/persona/verifiedDisaster", latitude + "," + longitude + "," + radius);
                         }
                     }

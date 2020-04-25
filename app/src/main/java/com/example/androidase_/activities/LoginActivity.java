@@ -80,13 +80,14 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         Button testingPageButton = findViewById(R.id.testing_page);
-        testingPageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
-                LoginActivity.this.startActivity(myIntent);
-            }
-        });
+        testingPageButton.setVisibility(View.GONE);
+//        testingPageButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
+//                LoginActivity.this.startActivity(myIntent);
+//            }
+//        });
 
     }
 
