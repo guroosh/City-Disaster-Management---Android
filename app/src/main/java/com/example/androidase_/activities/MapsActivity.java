@@ -109,7 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static double circleRadius;
 
     boolean isStartCurrentLocationSet = false;
-    Activity a = this;
+    public Activity a = this;
     DisasterReportAlert disasterReportAlert;
     ReportedDisaster reportedDisaster;
     public Button getDirectionsBetweenTwoLocations;
@@ -317,7 +317,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        MapsDriver.initiateRandomCircleCreation(new ReportedDisaster(), a);
                 HttpDriver.createThreadGetForBusStops(a, mMap);
 
-                mMap.setTrafficEnabled(true);
+//                mMap.setTrafficEnabled(true);
 
                 mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                     @Override

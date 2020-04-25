@@ -25,6 +25,18 @@ public class MathOperationsDriver {
         return distanceFromCenter <= radius;
     }
 
+    public static LatLng getExitPointNearCircleCircumferenceAtAngle(LatLng disasterLocation, double radius, int degree)
+    {
+        double lat, lng, newLat, newLng;
+        double angleInRadians;
+        angleInRadians = Math.toRadians(degree);
+        lat = disasterLocation.latitude;
+        lng = disasterLocation.longitude;
+        newLat = lat + ((radius + (radius * 0.1)) * (0.1 / 11131.94907932) * Math.sin(angleInRadians));
+        newLng = lng + ((radius + (radius * 0.1)) * (0.1 / 6644.971989103) * Math.cos(angleInRadians));
+        return new LatLng(newLat, newLng);
+    }
+
     public static ArrayList<LatLng> getRandomExitPointNearCircleCircumference(LatLng disasterLocation, double radius, boolean isDisasterOnUserLocation) {
         Random r = new Random();
         double degree, lat, lng, newLat, newLng;

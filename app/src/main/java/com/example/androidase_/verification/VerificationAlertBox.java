@@ -4,13 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.androidase_.R;
-import com.example.androidase_.activities.MapsActivity;
 import com.example.androidase_.object_classes.VerifyingDisasterPOJO;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -18,7 +15,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -26,12 +22,11 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.example.androidase_.reportingDisaster.DisasterReport.getExitRoute;
-import static com.example.androidase_.reportingDisaster.DisasterReport.getFireBrigadeRoute;
-import static com.example.androidase_.reportingDisaster.DisasterReport.getPoliceBrigadeRoute;
+import static com.example.androidase_.reportingDisaster.DisasterReport.getExitEntryRoutesAndPost;
 
 public class VerificationAlertBox {
     public static VerifyingDisasterPOJO verifyingDisasterPOJO = new VerifyingDisasterPOJO();
+
     public void createAlert(Context context, final boolean isInfoTrue, final String landmark, final double radius, final String scale, final double latitude, final double longitude, final Activity a) {
         View view = View.inflate(context, R.layout.alert_dialog_verification, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -58,15 +53,10 @@ public class VerificationAlertBox {
                         verifyingDisasterPOJO.scale = scale;
                         verifyingDisasterPOJO.latitude = latitude;
                         verifyingDisasterPOJO.longitude = longitude;
-//                        verifyingDisasterPOJO.policeRoute = getExitRoute(new LatLng(latitude, longitude), radius, true, a);
-                        verifyingDisasterPOJO.fireRoute = getFireBrigadeRoute(new LatLng(latitude, longitude), a);
-//                        verifyingDisasterPOJO.ambulanceRoute = getPoliceBrigadeRoute(new LatLng(latitude, longitude), a);
-
-                        //For backend
-                            // Shifted to callback function -> getFireBrigadeRoute
-//                        VerificationActivity.createThreadPostToVerify("http://" + a.getResources().getString(R.string.ip_address) + "/services/ds/disasterReport/verifiedDisaster", verifyingDisasterPOJO.objToJson(), a);
-                        //For demo
                         if (isInfoTrue) {
+                            //For backend
+                            getExitEntryRoutesAndPost(new LatLng(latitude, longitude), a, radius);
+                            //For demo
                             Log.d("CircleDrawing42", "sending message");
                             sendRequestToFirebase("verifiedDisaster", "Alert", "There is a disaster near you. Please be careful.", latitude, longitude, radius);
                             VerificationActivity.sendMessage("ase/persona/verifiedDisaster", latitude + "," + longitude + "," + radius);
@@ -96,8 +86,7 @@ public class VerificationAlertBox {
                     code[0] = pushToFirebase(topic, title, message, latitude, longitude, radius);
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
-                finally {
+                } finally {
                     Log.d("Firebase42", "done?: " + code[0]);
                 }
             }

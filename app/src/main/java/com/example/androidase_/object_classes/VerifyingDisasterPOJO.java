@@ -22,9 +22,7 @@ public class VerifyingDisasterPOJO {
     public boolean TrafficPoliceAssistanceRequired = false;
     public boolean FireBrigadeAssistanceRequired = false;
     public String OtherResponseTeamRequired = "";
-    //    public ArrayList<LatLng> policeRoute;
-    public ArrayList<LatLng> fireRoute;
-//    public ArrayList<LatLng> ambulanceRoute;
+    public ArrayList<ArrayList<LatLng>> exitEntryRoutes;
 
     public JSONObject objToJson() {
         JSONObject json = new JSONObject();
@@ -43,14 +41,18 @@ public class VerifyingDisasterPOJO {
             json.put("TrafficPoliceAssistanceRequired", this.TrafficPoliceAssistanceRequired);
             json.put("FireBrigadeAssistanceRequired", this.FireBrigadeAssistanceRequired);
             json.put("OtherResponseTeamRequired", this.OtherResponseTeamRequired);
-            JSONArray fireRouteJSON = new JSONArray();
-            for (LatLng latLng : fireRoute) {
-                JSONObject position = new JSONObject();
-                position.put("lat", latLng.latitude);
-                position.put("lng", latLng.longitude);
-                fireRouteJSON.put(position);
+            JSONArray exitEntryList = new JSONArray();
+            for (ArrayList<LatLng> list : exitEntryRoutes) {
+                JSONArray innerList = new JSONArray();
+                for (LatLng latLng : list) {
+                    JSONObject position = new JSONObject();
+                    position.put("lat", latLng.latitude);
+                    position.put("lng", latLng.longitude);
+                    innerList.put(position);
+                }
+                exitEntryList.put(innerList);
             }
-            json.put("FireRoute", fireRouteJSON);
+            json.put("ExitEntryRoutes", exitEntryList);
         } catch (JSONException e) {
             e.printStackTrace();
         }

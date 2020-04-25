@@ -159,7 +159,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void startNextActivity(boolean isCommonUser, String username, String password, boolean isUserNameSame) {
         if (!username.equals("") && !password.equals("") && isUserNameSame) {
-            SharedPreferences.Editor editor = getSharedPreferences("x", MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
             if (username.contains("@")) {
                 String[] arr = username.split("@");
                 username = arr[0];
