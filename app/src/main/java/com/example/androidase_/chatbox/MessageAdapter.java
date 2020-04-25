@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import com.example.androidase_.R;
 
@@ -18,7 +17,7 @@ import java.util.List;
 
 public class MessageAdapter extends BaseAdapter {
 
-    List<Message> messages = new ArrayList<Message>();
+    List<MyMessage> messages = new ArrayList<MyMessage>();
     Context context;
 
     public MessageAdapter(Context context) {
@@ -26,7 +25,7 @@ public class MessageAdapter extends BaseAdapter {
     }
 
 
-    public void add(Message message) {
+    public void add(MyMessage message) {
         this.messages.add(message);
         notifyDataSetChanged();
     }
@@ -50,7 +49,7 @@ public class MessageAdapter extends BaseAdapter {
     public View getView(int i, View convertView, ViewGroup viewGroup) {
         MessageViewHolder holder = new MessageViewHolder();
         LayoutInflater messageInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-        Message message = messages.get(i);
+        MyMessage message = messages.get(i);
 
         if (message.isBelongsToCurrentUser()) {
             convertView = messageInflater.inflate(R.layout.my_message, null);

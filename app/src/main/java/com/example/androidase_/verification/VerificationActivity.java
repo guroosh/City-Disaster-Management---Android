@@ -10,6 +10,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -22,6 +23,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.androidase_.R;
@@ -45,6 +47,8 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -71,6 +75,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
     boolean isStartCurrentLocationSet_verification = false;
     public static LatLng possibleDisasterLocation;
     public static LatLng globalUserLocation;
+    public static String disasterName;
 
     //for mqtt
     public static MqttAndroidClient client;
@@ -86,8 +91,13 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
         double lng = intent.getDoubleExtra("lng", 0);
         double lat = intent.getDoubleExtra("lat", 0);
         possibleDisasterLocation = new LatLng(lat, lng);
-
-
+        disasterName = intent.getStringExtra("area_name");
+        TextView textView = findViewById(R.id.verification_TextViewLandmark);
+        if (disasterName.equals("your current location")) {
+            textView.setText("<Unknown name>");
+        } else {
+            textView.setText(disasterName);
+        }
         /* START - setting up Maps */
         //init
         //API_KEY = "AIzaSyBPOVbWCZG6Weeunh-J2-t3NiyG_1-NXpQ";
@@ -153,27 +163,36 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
 //    }
 
     public static void createThreadPostToVerify(final String url, final JSONObject object, final Activity a) throws NullPointerException {
-        final int[] response = new int[1];
+        final Response[] returnValue = new Response[1];
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    response[0] = postRestApi(url, object);
+                    returnValue[0] = postRestApi(url, object);
                 } finally {
-                    if (response[0] == 200) {
+                    if (returnValue[0] == null) {
+                        Log.d("response42", "Connectivity error");
                         a.runOnUiThread(new Runnable() {
                             public void run() {
-                                Toast.makeText(a, "Verification Successful\nPlease wait for further instructions", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(a, "Connectivity error", Toast.LENGTH_SHORT).show();
                             }
                         });
-                        Intent myIntent = new Intent(a, MapsActivity.class);
-                        a.startActivity(myIntent);
                     } else {
-                        a.runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(a, "Error while verification", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        if (returnValue[0].code() == 200) {
+                            a.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(a, "Verification Successful\nPlease wait for further instructions", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            Intent myIntent = new Intent(a, MapsActivity.class);
+                            a.startActivity(myIntent);
+                        } else {
+                            a.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(a, "Error while verification: " + returnValue[0].code(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -181,7 +200,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
         thread.start();
     }
 
-    private static int postRestApi(String url, JSONObject object) throws NullPointerException {
+    private static Response postRestApi(String url, JSONObject object) throws NullPointerException {
         final MediaType JSON = MediaType.parse("application/json");
         OkHttpClient client = new OkHttpClient();
         RequestBody body = RequestBody.create(object.toString(), JSON);
@@ -193,12 +212,11 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
                 .addHeader("Content-Type", "application/json")
                 .build();
         try {
-            Response response = client.newCall(request).execute();
-            return response.code();
+            return client.newCall(request).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return 404;
+        return null;
     }
 
     @Override
@@ -349,29 +367,24 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
                 double lat = Double.parseDouble(arr[0]);
                 double lng = Double.parseDouble(arr[1]);
                 double radius = Double.parseDouble(arr[2]);
+
+                SharedPreferences.Editor editor = getSharedPreferences("MapsData", MODE_PRIVATE).edit();
+                editor.putBoolean("fromVerification", true);
+                editor.putString("disaster_lat", String.valueOf(lat));
+                editor.putString("disaster_lng", String.valueOf(lng));
+                editor.putString("user_lat", String.valueOf(globalUserLocation.latitude));
+                editor.putString("user_lng", String.valueOf(globalUserLocation.longitude));
+                editor.putString("radius", String.valueOf(radius));
+                editor.apply();
+
                 Intent myIntent = new Intent(VerificationActivity.this, MapsActivity.class);
-                myIntent.putExtra("fromVerification", true);
-                myIntent.putExtra("disaster_lat", lat);
-                myIntent.putExtra("disaster_lng", lng);
-                myIntent.putExtra("user_lat", globalUserLocation.latitude);
-                myIntent.putExtra("user_lng", globalUserLocation.longitude);
-                myIntent.putExtra("radius", radius);
-//                startCircleDrawingProcess(disasterLocation, globalCurrentLocation, (int) radius);
+//                myIntent.putExtra("fromVerification", true);
+//                myIntent.putExtra("disaster_lat", lat);
+//                myIntent.putExtra("disaster_lng", lng);
+//                myIntent.putExtra("user_lat", );
+//                myIntent.putExtra("user_lng", );
+//                myIntent.putExtra("radius", radius);
                 VerificationActivity.this.startActivity(myIntent);
-                //                status.setText("message is received.");
-//                Log.d("tag_verification_42", topic + ": " + message);
-//                String msg = new String(message.getPayload(), StandardCharsets.UTF_8);
-//                String[] arr = msg.split(",");
-//                double lat = Double.parseDouble(arr[0]);
-//                double lng = Double.parseDouble(arr[1]);
-//                makeNotification("New Disaster Reported", msg, lat, lng);
-//                possibleDisasterLocation = new LatLng(lat, lng);
-//                for (Marker m : markerListPossibleDisaster)
-//                    m.remove();
-//                Marker possibleDisasterMarker = verification_mMap.addMarker(new MarkerOptions().position(possibleDisasterLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-//                markerListPossibleDisaster.add(possibleDisasterMarker);
-//                possibleDisasterMarker.setTitle("Reported Disaster");
-//                animateUsingBound(verificationMarkerListCurrentLocation.get(verificationMarkerListCurrentLocation.size() - 1).getPosition(), markerListPossibleDisaster.get(markerListPossibleDisaster.size() - 1).getPosition(), 100);
             }
 
             @Override

@@ -43,8 +43,9 @@ public class CommonUserRegistrationPOJO {
         JSONObject json = new JSONObject();
         try {
             // Convert POJO to JSON
-            json.put("EmailId", emailId);
+            json.put("LoginId", emailId);
             json.put("Password", password);
+            json.put("Channel", "Android");
         } catch (JSONException e) {
             e.printStackTrace();
         }

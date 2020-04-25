@@ -9,7 +9,7 @@ import com.example.androidase_.object_classes.ReportedDisaster;
 import com.google.android.gms.maps.model.LatLng;
 
 public class DisasterReportAlert {
-    public void createAlert(final Context context, String message, String text1, String text2, final LatLng disasterLocation, final ReportedDisaster reportedDisaster, final boolean isDisasterOnUserLocation, final Activity a) {
+    public void createAlert(final Context context, String message, String text1, String text2, final LatLng disasterLocation, final ReportedDisaster reportedDisaster, final boolean isDisasterOnUserLocation, final Activity a, final String potentialDisasterName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(message);
         builder.setCancelable(true);
@@ -19,7 +19,7 @@ public class DisasterReportAlert {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
-                        DisasterReport.initialiseDisasterReport(disasterLocation, reportedDisaster, isDisasterOnUserLocation, a);
+                        DisasterReport.initialiseDisasterReport(disasterLocation, reportedDisaster, isDisasterOnUserLocation, a, potentialDisasterName);
                     }
                 });
 

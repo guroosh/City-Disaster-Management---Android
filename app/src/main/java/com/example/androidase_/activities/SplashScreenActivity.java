@@ -25,6 +25,10 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
+        SharedPreferences.Editor editor = getSharedPreferences("MapsData", MODE_PRIVATE).edit();
+        editor.putBoolean("fromVerification", false);
+        editor.apply();
+
         SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
         loggedIn = pref.getBoolean("loggedIn", false);
 

@@ -312,6 +312,7 @@ public class RouteBetweenTwoPoints {
             initialiseProcessForRouteBetweenThreePoints(locations, a);
         }
         if (!isRerouteRequired) {
+            polyLineOptions.color(Color.BLUE);
             routeBetweenTwoPointsPolylines.add(mMap.addPolyline(polyLineOptions));
         } else {
             //don't plot route through the disaster

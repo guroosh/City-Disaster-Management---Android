@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -107,9 +108,9 @@ public class RegistrationActivity extends AppCompatActivity {
         });
     }
 
-    private void startNextActivity(String username, String password) {
+    private void startNextActivity(String emailId, String password) {
         HashMap<String, String> data = new HashMap<>();
-        data.put("username", username);
+        data.put("username", emailId);
         data.put("password", password);
 
         String tableName = "user_data";
@@ -117,6 +118,13 @@ public class RegistrationActivity extends AppCompatActivity {
         BaseDataHelper userDatabase = new BaseDataHelper(this);
         userDatabase.createTable(tableName, new ArrayList<>(Arrays.asList(columnNames)));
         userDatabase.insertRow(tableName, data.get("username"), data);
+
+        String username = emailId.split("@")[0];
+        SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
+        editor.putString("username", username);
+        editor.putBoolean("loggedIn", true);
+        editor.putBoolean("isCommonUser", true);
+        editor.apply();
 
         Toast.makeText(getApplicationContext(), "Registration Successful", Toast.LENGTH_SHORT).show();
         Intent myIntent = new Intent(RegistrationActivity.this, MapsActivity.class);
@@ -176,12 +184,12 @@ public class RegistrationActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), "Registration Successful", Toast.LENGTH_SHORT).show();
                                 }
                             });
-                            Intent myIntent = new Intent(RegistrationActivity.this, MapsActivity.class);
-                            RegistrationActivity.this.startActivity(myIntent);
+//                            Intent myIntent = new Intent(RegistrationActivity.this, MapsActivity.class);
+//                            RegistrationActivity.this.startActivity(myIntent);
                         } else {
                             a.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    Toast.makeText(getApplicationContext(), "Server error while registration", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "Server error while registration: " + response[0].code(), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }

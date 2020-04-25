@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
                 String passwordString = password.getText().toString();
 
                 //For backend
-                CommonUserRegistrationPOJO commonUser = new CommonUserRegistrationPOJO();
+//                CommonUserRegistrationPOJO commonUser = new CommonUserRegistrationPOJO();
 //                CommonUserAfterLoginPOJO commonUserAfterLoginPOJO = createThreadPostToLogin("http://" + getResources().getString(R.string.ip_address) + "/login/login", commonUser.objToJson(usernameString, passwordString), usernameString, passwordString);
 
                 //For demo
@@ -126,12 +126,17 @@ public class LoginActivity extends AppCompatActivity {
                                 commonUserAfterLoginPOJO[0].isCommonUser = jsonObject.getBoolean("isCommonUser");
                                 commonUserAfterLoginPOJO[0].referenceCode = jsonObject.getString("referenceCode");
                                 boolean isCommonUser = commonUserAfterLoginPOJO[0].isCommonUser;
-                                startNextActivity(isCommonUser, username, password, true);
-                            } else {
-                                Log.d("response42", "Server error");
+//                                startNextActivity(true, username, password, true);
                                 a.runOnUiThread(new Runnable() {
                                     public void run() {
-                                        Toast.makeText(getApplicationContext(), "Server error while login", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getApplicationContext(), "Success: " + returnValue[0].code(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            } else {
+                                Log.d("response42", "Server error: " + returnValue[0].code());
+                                a.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Server error while login: " + returnValue[0].code(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }
@@ -154,7 +159,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void startNextActivity(boolean isCommonUser, String username, String password, boolean isUserNameSame) {
         if (!username.equals("") && !password.equals("") && isUserNameSame) {
-            SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = getSharedPreferences("x", MODE_PRIVATE).edit();
             if (username.contains("@")) {
                 String[] arr = username.split("@");
                 username = arr[0];

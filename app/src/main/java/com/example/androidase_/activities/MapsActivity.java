@@ -1,17 +1,15 @@
 package com.example.androidase_.activities;
 
-import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,9 +24,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -37,8 +32,8 @@ import android.widget.Toast;
 
 import com.example.androidase_.R;
 import com.example.androidase_.chatbox.ChatActivity;
-import com.example.androidase_.chatbox.Message;
 import com.example.androidase_.drivers.MapsDriver;
+import com.example.androidase_.mqtt.FirebaseService;
 import com.example.androidase_.object_classes.ReportedDisaster;
 import com.example.androidase_.reportingDisaster.DisasterReportAlert;
 import com.example.androidase_.drivers.HttpDriver;
@@ -55,12 +50,17 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -73,7 +73,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Target;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static LatLng globalCurrentLocation;
     public static HashMap<String, LatLng> busStopList = new HashMap<>();
     public static String API_KEY;
-    public static String globalPotentialDisasterName;
+    public static String globalPotentialDisasterName = "";
 
     //These lists are to keep track of icons on the map and remove them if necessary
     public static ArrayList<Circle> circleArrayList = new ArrayList<>();
@@ -124,16 +123,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static boolean isNavigating = false;
 
     //for notification
-    public static Intent globalIntent;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        globalIntent = getIntent();
+
+        Intent intent = new Intent(this, FirebaseService.class);
+        startService(intent);
+        FirebaseApp.initializeApp(MapsActivity.this);
+//        FirebaseInstanceId.getInstance().getInstanceId()
+//                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+////                        if (!task.isSuccessful()) {
+////                            Log.w("TAG", "getInstanceId failed", task.getException());
+////                        }
+//                        // Get new Instance ID token
+////                        String token = task.getResult().getToken();
+//
+//                        // Log and toast
+////                        String msg = getString(R.string.msg_token_fmt, token);
+////                        Log.d("Token42", token);
+////                        Toast.makeText(MapsActivity.this, token, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+        FirebaseMessaging.getInstance().subscribeToTopic("/topics/MY_TOPIC");
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        Log.d("Topic42", "Success");
+//                        Toast.makeText(MapsActivity.this, "Success", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
         username = pref.getString("username", "null");
+
 
         //init
         API_KEY = "AIzaSyBPOVbWCZG6Weeunh-J2-t3NiyG_1-NXpQ";
@@ -198,7 +225,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 reportedDisaster = new ReportedDisaster();
                 disasterReportAlert = new DisasterReportAlert();
-                disasterReportAlert.createAlert(MapsActivity.this, "Are you sure to report disaster at " + potentialDisasterName + "?", "Yes", "No", tempLocation, reportedDisaster, isDisasterOnUserLocation, a);
+                disasterReportAlert.createAlert(MapsActivity.this, "Are you sure to report disaster at " + potentialDisasterName + "?", "Yes", "No", tempLocation, reportedDisaster, isDisasterOnUserLocation, a, potentialDisasterName);
             }
         });
 
@@ -250,13 +277,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
-                boolean fromVerification = globalIntent.getBooleanExtra("fromVerification", false);
+                SharedPreferences pref = getApplicationContext().getSharedPreferences("MapsData", MODE_PRIVATE);
+                boolean fromVerification = pref.getBoolean("fromVerification", false);
+
                 if (fromVerification) {
-                    double disasterLat = globalIntent.getDoubleExtra("disaster_lat", 0);
-                    double disasterLng = globalIntent.getDoubleExtra("disaster_lng", 0);
-                    double userLat = globalIntent.getDoubleExtra("user_lat", 0);
-                    double userLng = globalIntent.getDoubleExtra("user_lng", 0);
-                    int radius = (int) globalIntent.getDoubleExtra("radius", 0);
+                    double disasterLat = Double.parseDouble(pref.getString("disaster_lat", ""));
+                    double disasterLng = Double.parseDouble(pref.getString("disaster_lng", ""));
+                    double userLat = Double.parseDouble(pref.getString("user_lat", ""));
+                    double userLng = Double.parseDouble(pref.getString("user_lng", ""));
+                    globalCurrentLocation = new LatLng(userLat, userLng);
+                    int radius = (int) Double.parseDouble(pref.getString("radius", ""));
                     Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLat, userLng)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                     for (Marker m : markerListCurrentLocation)
                         m.remove();
@@ -265,8 +295,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     marker.setTitle("USER LOCATION");
                     startCircleDrawingProcess(new LatLng(disasterLat, disasterLng), new LatLng(userLat, userLng), (int) radius);
                 } else {
-                    // add more if-else for (fromNotification)
-                    createDummyLocation();
+                    Random r = new Random();
+                    double lng = -6.310015 + r.nextDouble() * (-6.230852 + 6.310015);
+                    double lat = 53.330091 + r.nextDouble() * (53.359967 - 53.330091);
+                    LatLng currentLocation = new LatLng(lat, lng);
+                    globalCurrentLocation = currentLocation;
+                    SharedPreferences.Editor editor = getSharedPreferences("ReportingDisasterData", MODE_PRIVATE).edit();
+                    editor.putString("user_lat", String.valueOf(lat));
+                    editor.putString("user_lng", String.valueOf(lng));
+                    editor.apply();
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(currentLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                    for (Marker m : markerListCurrentLocation)
+                        m.remove();
+                    markerListCurrentLocation.add(marker);
+                    marker.setTag(-1);
+                    marker.setTitle("USER LOCATION");
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15.0f));
                 }
                 updateFireStationsListAndUI();
                 updatePoliceStationsListAndUI();
@@ -370,41 +414,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         HttpDriver.createThreadGetForRealTimeBusStopDetails(busStopsOnScreen, a);
     }
 
-    private void createDummyLocation() throws NullPointerException {
-        Random r = new Random();
-        double lng = -6.310015 + r.nextDouble() * (-6.230852 + 6.310015);
-        double lat = 53.330091 + r.nextDouble() * (53.359967 - 53.330091);
-
-
-        boolean fromNotification = globalIntent.getBooleanExtra("fromNotification", false);
-        Log.d("FromNotification42", String.valueOf(fromNotification));
-//        if (fromNotification) {
-//            LatLng disasterLocationFromIntent = new LatLng(globalIntent.getDoubleExtra("lat", 0), globalIntent.getDoubleExtra("lng", 0));
-//            int radius = globalIntent.getIntExtra("radius", 0);
-//            SharedPreferences pref = getApplicationContext().getSharedPreferences("ReportingDisasterData", MODE_PRIVATE);
-//            Log.d("Debug42", String.valueOf(lng));
-//            Log.d("Debug42", String.valueOf(lat));
-//            lat = Double.parseDouble(pref.getString("user_lat", String.valueOf(lat)));
-//            lng = Double.parseDouble(pref.getString("user_lng", String.valueOf(lng)));
-//            Log.d("Debug42", String.valueOf(lng));
-//            Log.d("Debug42", String.valueOf(lat));
-//            startCircleDrawingProcess(disasterLocationFromIntent, new LatLng(lat, lng), radius);
-//        }
-        LatLng currentLocation = new LatLng(lat, lng);
-        globalCurrentLocation = currentLocation;
-
-        SharedPreferences.Editor editor = getSharedPreferences("ReportingDisasterData", MODE_PRIVATE).edit();
-        editor.putString("user_lat", String.valueOf(lat));
-        editor.putString("user_lng", String.valueOf(lng));
-        editor.apply();
-        Marker marker = mMap.addMarker(new MarkerOptions().position(currentLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-        for (Marker m : markerListCurrentLocation)
-            m.remove();
-        markerListCurrentLocation.add(marker);
-        marker.setTag(-1);
-        marker.setTitle("USER LOCATION");
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15.0f));
-    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -500,7 +509,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.d("CircleDrawing42", msg);
                     LatLng disasterLocation = new LatLng(lat, lng);
                     Log.d("CircleDrawing42", String.valueOf(radius));
-                    makeNotification("Disaster alert", "There is a disaster near you, please travel careful", disasterLocation, (int) radius);
+//                    makeNotification("Disaster alert", "There is a disaster near you, please travel careful", disasterLocation, (int) radius);
                     startCircleDrawingProcess(disasterLocation, globalCurrentLocation, (int) radius);
                     Log.d("Navigation42", String.valueOf(isNavigating));
                     if (isNavigating) {
@@ -509,16 +518,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 "&destination=" + searchedDestination.latitude + "," + searchedDestination.longitude +
                                 "&key=" + API_KEY;
                         createThreadGetForRouteBetweenTwoLocations(url, a);
+                        animateUsingBound(globalCurrentLocation, searchedDestination, 100);
                     }
                 } else if (topic.equals("ase/persona/reportingDisaster")) {
+                    String areaName = arr[3];
                     SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
-                    boolean isCommonUser = pref.getBoolean("isCommonUser", false);
+                    boolean isCommonUser = pref.getBoolean("isCommonUser", true);
                     if (!isCommonUser) {
                         Intent myIntent = new Intent(MapsActivity.this, VerificationActivity.class);
                         myIntent.putExtra("lat", lat);
                         myIntent.putExtra("lng", lng);
                         myIntent.putExtra("user_lat", globalCurrentLocation.latitude);
                         myIntent.putExtra("user_lng", globalCurrentLocation.longitude);
+                        myIntent.putExtra("area_name", areaName);
                         MapsActivity.this.startActivity(myIntent);
                     }
                 }

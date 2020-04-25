@@ -12,17 +12,18 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <ImageView
-        android:id="@+id/nav_header_imageView"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:src="@mipmap/ic_launcher" />
+<!--    <ImageView-->
+<!--        android:id="@+id/nav_header_imageView"-->
+<!--        android:layout_width="64dp"-->
+<!--        android:layout_height="64dp"-->
+<!--        android:src="@mipmap/ic_launcher" />-->
 
     <TextView
         android:id="@+id/nav_header_textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="16dp"
-        android:text="Chike Mgbemena"
+        android:textSize="30dp"
+        android:text="Disaster Management"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 </LinearLayout>

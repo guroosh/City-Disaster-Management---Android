@@ -1,6 +1,5 @@
 package com.example.androidase_.chatbox;
 
-import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -17,6 +17,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.androidase_.R;
 import com.example.androidase_.activities.MapsActivity;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -26,12 +27,21 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -47,7 +57,6 @@ public class ChatActivity extends AppCompatActivity {
     public static String username;
 
     public static HashMap<String, String> nameToColor = new HashMap<>();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +79,7 @@ public class ChatActivity extends AppCompatActivity {
 
     public void sendMessage(View view) {
         String payload = editText.getText().toString();
+        sendRequestToFirebase(payload);
         payload = randomString + username + ":" + payload;
         if (payload.length() > 0) {
             byte[] encodedPayload;
@@ -84,6 +94,52 @@ public class ChatActivity extends AppCompatActivity {
 //            publishMessage(payload, true);
             editText.getText().clear();
         }
+    }
+
+    private void sendRequestToFirebase(String message) {
+        final int[] code = new int[1];
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                   code[0] = pushToFirebase();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    Log.d("Firebase42", "done?: " + code[0]);
+                }
+            }
+        });
+        thread.start();
+    }
+
+    private int pushToFirebase() throws JSONException {
+        final MediaType JSON = MediaType.get("application/json; charset=utf-8");
+        OkHttpClient client = new OkHttpClient();
+        JSONObject object = new JSONObject();
+        JSONObject innerObject = new JSONObject();
+        innerObject.put("title", "No title found");
+        innerObject.put("body", "Message lost in transition");
+        innerObject.put("content_available", true);
+        innerObject.put("priority", "high");
+        object.put("to", "/topics/MY_TOPIC");
+        object.put("notification", innerObject);
+        RequestBody body = RequestBody.create(object.toString(), JSON);
+        Request request = new Request.Builder()
+                .url("https://fcm.googleapis.com/fcm/send")
+                .post(body)
+                .addHeader("Authorization", "key=AAAAq9ahUsk:APA91bGV_3DhYo-HRdPJjQ-Bfj6iKV1odIPzGSAPnIb1wL40k3aHMCwB_Q86nkqU_Gkfy7pwvZXXCu941GMqaVVqu6e2VYkJMO_P5FD_ey-12AqjNlqPC5fA7c_LmwkmpmOKr6bY-_Vr")
+                .addHeader("Content-Type", "application/json")
+                .build();
+        Response response = null;
+        try {
+             response = client.newCall(request).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert response != null;
+        return response.code();
     }
 
 
@@ -101,11 +157,11 @@ public class ChatActivity extends AppCompatActivity {
         }
         Random r = new Random();
         int i = r.nextInt(2);
-        final Message message;
+        final MyMessage message;
         if (i == 0) {
-            message = new Message(messageText, data, isItMyMessage);
+            message = new MyMessage(messageText, data, isItMyMessage);
         } else {
-            message = new Message(messageText, data, isItMyMessage);
+            message = new MyMessage(messageText, data, isItMyMessage);
         }
         runOnUiThread(new Runnable() {
             @Override

@@ -1,11 +1,11 @@
 package com.example.androidase_.chatbox;
 
-public class Message {
+public class MyMessage {
     private String text;
     private MemberData memberData;
     private boolean belongsToCurrentUser;
 
-    public Message(String text, MemberData data, boolean belongsToCurrentUser) {
+    public MyMessage(String text, MemberData data, boolean belongsToCurrentUser) {
         this.text = text;
         this.memberData = data;
         this.belongsToCurrentUser = belongsToCurrentUser;

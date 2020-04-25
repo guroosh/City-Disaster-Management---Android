@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,8 +15,8 @@ import com.example.androidase_.chatbox.ChatActivity;
 import com.example.androidase_.mqtt.MqttActivity;
 import com.example.androidase_.p2p.P2PActivity;
 import com.example.androidase_.verification.VerificationActivity;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
 //import com.google.firebase.quickstart.fcm.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,6 +26,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 //        FirebaseMessaging.getInstance().subscribeToTopic("notification");
+//        FirebaseMessaging.getInstance().subscribeToTopic("notification").addOnSuccessListener(new OnSuccessListener<Void>() {
+//            @Override
+//            public void onSuccess(Void aVoid) {
+//                Toast.makeText(getApplicationContext(),"Subscribed",Toast.LENGTH_LONG).show();
+//            }
+//        });
 
         setContentView(R.layout.activity_main);
         Button buttonDB = this.findViewById(R.id.button_db);

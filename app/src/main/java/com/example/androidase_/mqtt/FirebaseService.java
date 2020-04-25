@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 
@@ -19,29 +20,25 @@ import com.example.androidase_.activities.DBActivity;
 import com.example.androidase_.activities.MainActivity;
 import com.example.androidase_.activities.MapsActivity;
 import com.example.androidase_.activities.NotificationActivity;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 public class FirebaseService extends FirebaseMessagingService {
-    public static final String NOTIFICATION_CHANNEL_ID = "10001";
-    private final static String default_notification_channel_id = "default";
 
     public FirebaseService() {
     }
 
     @Override
     public void onNewToken(String token) {
-//        super.onNewToken(token);
+        super.onNewToken(token);
         Log.d("Token42", "Refreshed token: " + token);
-        // If you want to send messages to this application instance or
-        // manage this apps subscriptions on the server side, send the
-        // Instance ID token to your app server.
-        //sendRegistrationToServer(token);
     }
 
     @Override
-    public void onMessageReceived(RemoteMessage var1) {
+    public void onMessageReceived(final RemoteMessage var1) {
 //        super.onMessageReceived(var1);
+
         Log.d("Token42", "Refreshed message: " + var1.getNotification().getTitle() + " " + var1.getNotification().getBody());
 //        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
         Handler handler = new Handler(Looper.getMainLooper());
@@ -49,7 +46,11 @@ public class FirebaseService extends FirebaseMessagingService {
             @Override
             public void run() {
                 Intent notificationIntent = new Intent(getApplicationContext(), MapsActivity.class);
-                notificationIntent.putExtra("NotificationMessage", "I am from Notification");
+                notificationIntent.putExtra("fromVerification", true);
+                notificationIntent.putExtra("disaster_lat", String.valueOf(var1.getData().get("disaster_lat")));
+                notificationIntent.putExtra("disaster_lng", String.valueOf(var1.getData().get("disaster_lng")));
+                notificationIntent.putExtra("radius", String.valueOf(var1.getData().get("radius")));
+
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -61,11 +62,12 @@ public class FirebaseService extends FirebaseMessagingService {
                 }
                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "YOUR_CHANNEL_ID")
                         .setSmallIcon(R.mipmap.ic_launcher) // notification icon
-                        .setContentTitle("title") // title for notification
-                        .setContentText("message")// message for notification
+                        .setContentTitle(var1.getNotification().getTitle()) // title for notification
+                        .setContentText(var1.getNotification().getBody())// message for notification
                         .setAutoCancel(true); // clear notification after click
-                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-                PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+                PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 mBuilder.setContentIntent(pi);
                 mNotificationManager.notify(0, mBuilder.build());
             }
