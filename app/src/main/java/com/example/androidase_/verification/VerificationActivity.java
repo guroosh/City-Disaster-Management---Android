@@ -145,7 +145,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
                     double radiusDouble = Double.parseDouble(radius.getText().toString());
                     String scaleString = scale.getSelectedItem().toString();
                     VerificationAlertBox verificationAlertBox = new VerificationAlertBox();
-                    verificationAlertBox.createAlert(VerificationActivity.this, isInfoTrueBool, landmarkString, radiusDouble, scaleString, possibleDisasterLocation.latitude, possibleDisasterLocation.longitude, a);
+                    verificationAlertBox.createAlert(VerificationActivity.this, isInfoTrueBool, landmarkString, radiusDouble, scaleString, possibleDisasterLocation.latitude, possibleDisasterLocation.longitude, a, globalUserLocation);
                 } else {
                     Toast.makeText(getApplicationContext(), "Enter radius", Toast.LENGTH_SHORT).show();
                 }
@@ -371,6 +371,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
                 double lat = Double.parseDouble(arr[0]);
                 double lng = Double.parseDouble(arr[1]);
                 double radius = Double.parseDouble(arr[2]);
+                String listOfLists = arr[3];
 
                 SharedPreferences.Editor editor = getSharedPreferences("MapsData", MODE_PRIVATE).edit();
                 editor.putBoolean("fromVerification", true);
@@ -379,6 +380,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
                 editor.putString("user_lat", String.valueOf(globalUserLocation.latitude));
                 editor.putString("user_lng", String.valueOf(globalUserLocation.longitude));
                 editor.putString("radius", String.valueOf(radius));
+                editor.putString("listOfLists", listOfLists);
                 editor.apply();
 
                 Intent myIntent = new Intent(VerificationActivity.this, MapsActivity.class);

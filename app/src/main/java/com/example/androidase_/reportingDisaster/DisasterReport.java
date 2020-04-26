@@ -3,14 +3,15 @@ package com.example.androidase_.reportingDisaster;
 import android.app.Activity;
 import android.graphics.Color;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.example.androidase_.R;
 import com.example.androidase_.activities.MapsActivity;
 import com.example.androidase_.drivers.HttpDriver;
 import com.example.androidase_.object_classes.ReportedDisaster;
 import com.example.androidase_.drivers.MathOperationsDriver;
 import com.example.androidase_.other_classes.PathJSONParser;
 import com.example.androidase_.verification.VerificationActivity;
+import com.example.androidase_.verification.VerificationAlertBox;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -25,9 +26,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+import okhttp3.Response;
+
 import static com.example.androidase_.activities.MapsActivity.API_KEY;
 import static com.example.androidase_.activities.MapsActivity.circleRadius;
 import static com.example.androidase_.activities.MapsActivity.circleCenter;
+import static com.example.androidase_.activities.MapsActivity.entryExitRoutesPolylines;
 import static com.example.androidase_.activities.MapsActivity.globalCurrentLocation;
 import static com.example.androidase_.activities.MapsActivity.mMap;
 import static com.example.androidase_.activities.MapsActivity.exitRoutePolylines;
@@ -56,11 +60,13 @@ public class DisasterReport {
         //For backend
 //        createThreadPostDisaster("http://" + a.getResources().getString(R.string.ip_address) + "/services/ds/DisasterReport/reportDisaster", jsonObject, a);
         //For demo
+        new VerificationAlertBox().sendRequestToFirebase("MY_TOPIC", "New Disaster Reported", "Please verify the reported disaster.", 0, 0, 0);
         MapsActivity.sendMessage("ase/persona/reportingDisaster", disasterLocation.latitude + "," + disasterLocation.longitude + "," + (System.currentTimeMillis() / 1000) + "," + potentialDisasterName);
     }
 
-    public static void startCircleDrawingProcess(LatLng disasterLocation, LatLng userLocation, int radius) {
-        Log.d("CircleDrawing42", String.valueOf(radius));
+    public static void startCircleDrawingProcess(LatLng disasterLocation, LatLng userLocation, int radius, String listOfLists) {
+        Log.d("CircleDrawingLog42", String.valueOf(radius));
+        Log.d("CircleDrawingLog42", listOfLists);
         Activity a = new MapsActivity();
         circleCenter = disasterLocation;
         circleRadius = radius;
@@ -69,7 +75,7 @@ public class DisasterReport {
         // todo: check if is User is Inside the circle and pass that along with isDisasterOnUserLocation
         // todo: it will also help while creating route and rerouting so that instead of rerouting it will exit, if the user is inside
         boolean isDisasterOnUserLocation = disasterLocation.latitude == userLocation.latitude && disasterLocation.longitude == userLocation.longitude;
-        showExitRoute(disasterLocation, radius, isDisasterOnUserLocation, a);
+        showExitRoute(disasterLocation, radius, isDisasterOnUserLocation, a, listOfLists);
     }
 
     public static void getExitEntryRoutesAndPost(LatLng disasterLocation, Activity a, double radius) {
@@ -96,10 +102,10 @@ public class DisasterReport {
                     "&key=" + API_KEY;
             urls.add(url);
         }
-        createThreadGetForGettingEntryExitRoutes(urls, a);
+        createThreadGetForGettingEntryExitRoutes(urls, a, disasterLocation, radius);
     }
 
-    private static void createThreadGetForGettingEntryExitRoutes(final ArrayList<String> urls, final Activity a) {
+    private static void createThreadGetForGettingEntryExitRoutes(final ArrayList<String> urls, final Activity a, final LatLng disasterLocation, final double radius) {
         final String[] result = new String[4];
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -121,21 +127,49 @@ public class DisasterReport {
                     JSONObject testingObject = verifyingDisasterPOJO.objToJson();
                     try {
                         JSONArray jsonArray = testingObject.getJSONArray("ExitEntryRoutes");
-                        for (int jl = 0; jl < jsonArray.length(); jl++) {
-                            Log.d("RoutePrinting42", jsonArray.getString(jl));
-                        }
+                        Log.d("RoutePrinting42", String.valueOf(jsonArray));
+//                        for (int jl = 0; jl < jsonArray.length(); jl++) {
+//                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                     //end
-                    VerificationActivity.createThreadPostToVerify("http://" + a.getResources().getString(R.string.ip_address) + "/services/ds/disasterReport/verifiedDisaster", verifyingDisasterPOJO.objToJson(), a);
+                    // For backend
+//                    VerificationActivity.createThreadPostToVerify("http://" + a.getResources().getString(R.string.ip_address) + "/services/ds/disasterReport/verifiedDisaster", verifyingDisasterPOJO.objToJson(), a);
+                    //For demo
+                    Log.d("CircleDrawing42", "sending message");
+
+                    JSONArray arrayOfArray = listToJSONArray(list);
+
+
+                    new VerificationAlertBox().sendRequestToFirebase("MY_TOPIC", "Alert", "There is a disaster near you. Please be careful.", 0, 0, 0);
+                    VerificationActivity.sendMessage("ase/persona/verifiedDisaster", disasterLocation.latitude + "," + disasterLocation.longitude + "," + radius + "," + String.valueOf(arrayOfArray).replaceAll(",", "!"));
                 }
             }
         });
         thread.start();
     }
 
-    public static void showExitRoute(LatLng disasterLocation, double radius, boolean isDisasterOnUserLocation, Activity a) {
+    private static JSONArray listToJSONArray(ArrayList<ArrayList<LatLng>> list) {
+        JSONArray exitEntryList = new JSONArray();
+        try {
+            for (ArrayList<LatLng> l : list) {
+                JSONArray innerList = new JSONArray();
+                for (LatLng latLng : l) {
+                    JSONObject position = new JSONObject();
+                    position.put("lat", latLng.latitude);
+                    position.put("lng", latLng.longitude);
+                    innerList.put(position);
+                }
+                exitEntryList.put(innerList);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return exitEntryList;
+    }
+
+    public static void showExitRoute(LatLng disasterLocation, double radius, boolean isDisasterOnUserLocation, Activity a, String listOfLists) {
         double lng1 = globalCurrentLocation.longitude;
         double lat1 = globalCurrentLocation.latitude;
         double lng2 = disasterLocation.longitude;
@@ -148,7 +182,7 @@ public class DisasterReport {
                         "origin=" + globalCurrentLocation.latitude + "," + globalCurrentLocation.longitude +
                         "&destination=" + randomExitLocation.latitude + "," + randomExitLocation.longitude +
                         "&key=" + API_KEY;
-                createThreadGetForExitRoute(url, a);
+                createThreadGetForExitRoute(url, a, listOfLists);
             }
         }
     }
@@ -189,13 +223,13 @@ public class DisasterReport {
                 points.add(position);
             }
             polyLineOptions.addAll(points);
-            polyLineOptions.width(15);
+            polyLineOptions.width(20);
             polyLineOptions.color(color);
         }
         exitRoutePolylines.add(mMap.addPolyline(polyLineOptions));
     }
 
-    private static void createThreadGetForExitRoute(final String url, final Activity a) {
+    private static void createThreadGetForExitRoute(final String url, final Activity a, final String listOfLists) {
         final String[] result = new String[1];
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -206,6 +240,7 @@ public class DisasterReport {
                     a.runOnUiThread(new Runnable() {
                         public void run() {
                             plotExitRoute(a, result[0], Color.BLUE);
+                            plotEntryExitRoutes(listOfLists);
                         }
                     });
                 }
@@ -214,11 +249,54 @@ public class DisasterReport {
         thread.start();
     }
 
+    private static void plotEntryExitRoutes(String listOfLists) {
+        deleteOldEntryExitRoutes();
+        renderEntryExitRoutes(listOfLists);
+    }
+
+    private static void renderEntryExitRoutes(String jsonData) throws NullPointerException {
+        jsonData = jsonData.replaceAll("!", ",");
+        PolylineOptions polyLineOptions;
+        ArrayList<LatLng> points;
+        try {
+            JSONArray jsonArray = new JSONArray(jsonData);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONArray inner = jsonArray.getJSONArray(i);
+                polyLineOptions = new PolylineOptions();
+                points = new ArrayList<>();
+                for (int j = 0; j < inner.length(); j++) {
+                    JSONObject obj = inner.getJSONObject(j);
+                    double lat = obj.getDouble("lat");
+                    double lng = obj.getDouble("lng");
+                    points.add(new LatLng(lat, lng));
+                }
+                polyLineOptions.addAll(points);
+                polyLineOptions.width(10);
+                if (i % 2 == 0) {
+                    polyLineOptions.color(Color.GREEN);
+                } else {
+                    polyLineOptions.color(Color.RED);
+                }
+                entryExitRoutesPolylines.add(mMap.addPolyline(polyLineOptions));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private static void deleteOldExitRoute() throws NullPointerException {
         for (Polyline p : exitRoutePolylines) {
             p.remove();
         }
         exitRoutePolylines.clear();
+    }
+
+    private static void deleteOldEntryExitRoutes() throws NullPointerException {
+        for (Polyline p : entryExitRoutesPolylines) {
+            p.remove();
+        }
+        entryExitRoutesPolylines.clear();
     }
 
     private static ArrayList<LatLng> getLatLngRoute(String jsonData) {
@@ -249,5 +327,35 @@ public class DisasterReport {
         }
         return points;
     }
+
+    public static void createThreadPostDisaster(final String url, final JSONObject object, final Activity a) throws NullPointerException {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response response = null;
+                try {
+                    response = HttpDriver.postRestApi(url, object, a);
+                } finally {
+                    if (response == null) {
+
+                    } else {
+                        final int finalCode = response.code();
+                        a.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (finalCode == 200) {
+                                    Toast.makeText(a, "DisasterReport Reported Successfully", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(a, String.valueOf(finalCode), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        });
+        thread.start();
+    }
+
 
 }

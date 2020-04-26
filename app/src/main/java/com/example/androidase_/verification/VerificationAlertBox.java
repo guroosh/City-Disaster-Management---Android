@@ -27,7 +27,7 @@ import static com.example.androidase_.reportingDisaster.DisasterReport.getExitEn
 public class VerificationAlertBox {
     public static VerifyingDisasterPOJO verifyingDisasterPOJO = new VerifyingDisasterPOJO();
 
-    public void createAlert(Context context, final boolean isInfoTrue, final String landmark, final double radius, final String scale, final double latitude, final double longitude, final Activity a) {
+    public void createAlert(Context context, final boolean isInfoTrue, final String landmark, final double radius, final String scale, final double latitude, final double longitude, final Activity a, final LatLng adminUserLocation) {
         View view = View.inflate(context, R.layout.alert_dialog_verification, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setView(view);
@@ -54,12 +54,10 @@ public class VerificationAlertBox {
                         verifyingDisasterPOJO.latitude = latitude;
                         verifyingDisasterPOJO.longitude = longitude;
                         if (isInfoTrue) {
-                            //For backend
                             getExitEntryRoutesAndPost(new LatLng(latitude, longitude), a, radius);
-                            //For demo
-                            Log.d("CircleDrawing42", "sending message");
-                            sendRequestToFirebase("MY_TOPIC", "Alert", "There is a disaster near you. Please be careful.", latitude, longitude, radius);
-                            VerificationActivity.sendMessage("ase/persona/verifiedDisaster", latitude + "," + longitude + "," + radius);
+
+                            //For web portal
+                            VerificationActivity.sendMessage("/ase/liveAdminLocation", adminUserLocation.latitude + "," + adminUserLocation.longitude);
                         }
                     }
                 });
@@ -77,7 +75,7 @@ public class VerificationAlertBox {
         alert.show();
     }
 
-    private void sendRequestToFirebase(final String topic, final String title, final String message, final double latitude, final double longitude, final double radius) {
+    public void sendRequestToFirebase(final String topic, final String title, final String message, final double latitude, final double longitude, final double radius) {
         final int[] code = new int[1];
         Thread thread = new Thread(new Runnable() {
             @Override

@@ -1,6 +1,5 @@
 package com.example.androidase_.activities;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -50,16 +49,12 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -97,6 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //These lists are to keep track of icons on the map and remove them if necessary
     public static ArrayList<Circle> circleArrayList = new ArrayList<>();
     public static ArrayList<Polyline> exitRoutePolylines = new ArrayList<>();
+    public static ArrayList<Polyline> entryExitRoutesPolylines = new ArrayList<>();
     public static ArrayList<Polyline> fireBrigadeRoutePolylines = new ArrayList<>();
     public static ArrayList<Polyline> policeStationRoutePolylines = new ArrayList<>();
     public static ArrayList<Polyline> routeBetweenTwoPointsPolylines = new ArrayList<>();
@@ -285,6 +281,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     double disasterLng = Double.parseDouble(pref.getString("disaster_lng", ""));
                     double userLat = Double.parseDouble(pref.getString("user_lat", ""));
                     double userLng = Double.parseDouble(pref.getString("user_lng", ""));
+                    String listOfLists = pref.getString("listOfLists", "");
                     globalCurrentLocation = new LatLng(userLat, userLng);
                     int radius = (int) Double.parseDouble(pref.getString("radius", ""));
                     Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLat, userLng)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
@@ -293,7 +290,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     markerListCurrentLocation.add(marker);
                     marker.setTag(-1);
                     marker.setTitle("USER LOCATION");
-                    startCircleDrawingProcess(new LatLng(disasterLat, disasterLng), new LatLng(userLat, userLng), (int) radius);
+                    startCircleDrawingProcess(new LatLng(disasterLat, disasterLng), new LatLng(userLat, userLng), (int) radius, listOfLists);
                 } else {
                     Random r = new Random();
                     double lng = -6.310015 + r.nextDouble() * (-6.230852 + 6.310015);
@@ -505,12 +502,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 double lng = Double.parseDouble(arr[1]);
                 double radius = Double.parseDouble(arr[2]);
                 if (topic.equals("ase/persona/verifiedDisaster")) {
+                    String listOfLists = arr[3];
                     Log.d("CircleDrawing42", topic);
                     Log.d("CircleDrawing42", msg);
                     LatLng disasterLocation = new LatLng(lat, lng);
                     Log.d("CircleDrawing42", String.valueOf(radius));
 //                    makeNotification("Disaster alert", "There is a disaster near you, please travel careful", disasterLocation, (int) radius);
-                    startCircleDrawingProcess(disasterLocation, globalCurrentLocation, (int) radius);
+                    startCircleDrawingProcess(disasterLocation, globalCurrentLocation, (int) radius, listOfLists);
                     Log.d("Navigation42", String.valueOf(isNavigating));
                     if (isNavigating) {
                         String url = "https://maps.googleapis.com/maps/api/directions/json?" +
@@ -535,7 +533,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
             }
-
             @Override
             public void deliveryComplete(IMqttDeliveryToken token) {
 //                status.setText("delivery completed.");

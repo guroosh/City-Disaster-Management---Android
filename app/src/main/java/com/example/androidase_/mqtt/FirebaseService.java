@@ -45,31 +45,36 @@ public class FirebaseService extends FirebaseMessagingService {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Intent notificationIntent = new Intent(getApplicationContext(), MapsActivity.class);
-                notificationIntent.putExtra("fromVerification", true);
-                notificationIntent.putExtra("disaster_lat", String.valueOf(var1.getData().get("disaster_lat")));
-                notificationIntent.putExtra("disaster_lng", String.valueOf(var1.getData().get("disaster_lng")));
-                notificationIntent.putExtra("radius", String.valueOf(var1.getData().get("radius")));
+                SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
+                boolean isCommonUser = pref.getBoolean("isCommonUser", true);
+                String title = var1.getNotification().getTitle();
+                if (!title.equals("New Disaster Reported") || !isCommonUser) {
+                    Intent notificationIntent = new Intent(getApplicationContext(), MapsActivity.class);
+                    notificationIntent.putExtra("fromVerification", true);
+                    notificationIntent.putExtra("disaster_lat", String.valueOf(var1.getData().get("disaster_lat")));
+                    notificationIntent.putExtra("disaster_lng", String.valueOf(var1.getData().get("disaster_lng")));
+                    notificationIntent.putExtra("radius", String.valueOf(var1.getData().get("radius")));
 
-                NotificationManager mNotificationManager =
-                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    NotificationChannel channel = new NotificationChannel("YOUR_CHANNEL_ID",
-                            "YOUR_CHANNEL_NAME",
-                            NotificationManager.IMPORTANCE_DEFAULT);
-                    channel.setDescription("YOUR_NOTIFICATION_CHANNEL_DISCRIPTION");
-                    mNotificationManager.createNotificationChannel(channel);
+                    NotificationManager mNotificationManager =
+                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        NotificationChannel channel = new NotificationChannel("YOUR_CHANNEL_ID",
+                                "YOUR_CHANNEL_NAME",
+                                NotificationManager.IMPORTANCE_DEFAULT);
+                        channel.setDescription("YOUR_NOTIFICATION_CHANNEL_DISCRIPTION");
+                        mNotificationManager.createNotificationChannel(channel);
+                    }
+                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "YOUR_CHANNEL_ID")
+                            .setSmallIcon(R.mipmap.ic_launcher) // notification icon
+                            .setContentTitle(var1.getNotification().getTitle()) // title for notification
+                            .setContentText(var1.getNotification().getBody())// message for notification
+                            .setAutoCancel(true); // clear notification after click
+
+
+                    PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    mBuilder.setContentIntent(pi);
+                    mNotificationManager.notify(0, mBuilder.build());
                 }
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "YOUR_CHANNEL_ID")
-                        .setSmallIcon(R.mipmap.ic_launcher) // notification icon
-                        .setContentTitle(var1.getNotification().getTitle()) // title for notification
-                        .setContentText(var1.getNotification().getBody())// message for notification
-                        .setAutoCancel(true); // clear notification after click
-
-
-                PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                mBuilder.setContentIntent(pi);
-                mNotificationManager.notify(0, mBuilder.build());
             }
         });
 

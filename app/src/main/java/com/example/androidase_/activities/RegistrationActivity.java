@@ -91,8 +91,8 @@ public class RegistrationActivity extends AppCompatActivity {
                     //For demo
                     startNextActivity(commonUser.emailId, commonUser.password);
 
-                } else {
-                    Toast.makeText(getApplicationContext(), "Nope", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    Toast.makeText(getApplicationContext(), "Nope", Toast.LENGTH_SHORT).show();
                 }
             }
 

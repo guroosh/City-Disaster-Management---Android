@@ -116,7 +116,7 @@ public class ChatActivity extends AppCompatActivity {
         thread.start();
     }
 
-    private int pushToFirebase(String topic, String title, String message) throws JSONException {
+    public int pushToFirebase(String topic, String title, String message) throws JSONException {
         final MediaType JSON = MediaType.get("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();
         JSONObject object = new JSONObject();
@@ -143,7 +143,6 @@ public class ChatActivity extends AppCompatActivity {
         assert response != null;
         return response.code();
     }
-
 
     private void showMessageOnScreen(String receivedMessage, boolean isItMyMessage) {
         String[] arr = receivedMessage.split(":");

@@ -24,6 +24,7 @@ public class VerifyingDisasterPOJO {
     public String OtherResponseTeamRequired = "";
     public ArrayList<ArrayList<LatLng>> exitEntryRoutes;
 
+
     public JSONObject objToJson() {
         JSONObject json = new JSONObject();
         try {
