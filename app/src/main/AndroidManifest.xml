@@ -27,6 +27,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        <activity android:name=".activities.MapsActivity"></activity>
 
         <service
             android:name=".mqtt.FirebaseService"
@@ -36,15 +37,15 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
         <receiver
             android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </receiver>
-
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -66,7 +67,6 @@
         <activity android:name=".activities.DBActivity" />
         <activity android:name=".activities.LocationActivity" />
         <activity android:name=".p2p.P2PActivity" />
-        <activity android:name=".activities.MapsActivity" />
         <activity android:name=".mqtt.MqttActivity" />
         <activity android:name=".verification.VerificationActivity" />
 

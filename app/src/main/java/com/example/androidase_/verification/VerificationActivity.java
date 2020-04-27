@@ -166,7 +166,7 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
 //        return VerificationActivity.getAppContext();
 //    }
 
-    public static void createThreadPostToVerify(final String url, final JSONObject object, final Activity a) throws NullPointerException {
+    public static void createThreadPostToVerify(final String url, final JSONObject object, final Activity a, final LatLng disasterLocation, final double radius, final JSONArray arrayOfArray) throws NullPointerException {
         final Response[] returnValue = new Response[1];
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -185,7 +185,8 @@ public class VerificationActivity extends AppCompatActivity implements OnMapRead
                         if (returnValue[0].code() == 200) {
                             a.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    Toast.makeText(a, "Verification Successful\nPlease wait for further instructions", Toast.LENGTH_SHORT).show();
+                                    new VerificationAlertBox().sendRequestToFirebase("MY_TOPIC", "Alert", "There is a disaster near you. Please be careful.", 0, 0, 0);
+                                    VerificationActivity.sendMessage("ase/persona/verifiedDisaster", disasterLocation.latitude + "," + disasterLocation.longitude + "," + radius + "," + String.valueOf(arrayOfArray).replaceAll(",", "!"));
                                 }
                             });
                             Intent myIntent = new Intent(a, MapsActivity.class);

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
 
@@ -22,6 +23,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.example.androidase_.reportingDisaster.DisasterReport.getExitEntryRoutesAndPost;
 
 public class VerificationAlertBox {
@@ -34,18 +36,21 @@ public class VerificationAlertBox {
         builder.setMessage("Are you sure?");
         builder.setCancelable(true);
 
+        SharedPreferences pref = a.getSharedPreferences("LoginData", MODE_PRIVATE);
+        final String userReference = pref.getString("userReferenceCode", "null");
+        final String disasterReference = pref.getString("disasterReference", "null");
         builder.setPositiveButton(
                 "Proceed",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
-                        String referenceId = "RD260599";
                         String verifiedBy = "CurrentUser";
                         String verifiedTime = String.valueOf(System.currentTimeMillis() / 1000);
                         Log.d("after42", "after alert closed");
 
-                        verifyingDisasterPOJO.referenceId = referenceId;
-                        verifyingDisasterPOJO.verifiedBy = verifiedBy;
+
+                        verifyingDisasterPOJO.referenceId = disasterReference;
+                        verifyingDisasterPOJO.verifiedBy = userReference;
                         verifyingDisasterPOJO.verifiedTime = verifiedTime;
                         verifyingDisasterPOJO.isInfoTrue = isInfoTrue;
                         verifyingDisasterPOJO.landmark = landmark;

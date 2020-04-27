@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.androidase_.R;
 import com.example.androidase_.activities.MapsActivity;
 import com.example.androidase_.drivers.HttpDriver;
 import com.example.androidase_.object_classes.ReportedDisaster;
@@ -35,7 +36,6 @@ import static com.example.androidase_.activities.MapsActivity.entryExitRoutesPol
 import static com.example.androidase_.activities.MapsActivity.globalCurrentLocation;
 import static com.example.androidase_.activities.MapsActivity.mMap;
 import static com.example.androidase_.activities.MapsActivity.exitRoutePolylines;
-//import static com.example.androidase_.activities.MapsActivity.previousExitRoute;
 import static com.example.androidase_.activities.MapsActivity.username;
 import static com.example.androidase_.drivers.MapsDriver.changeCameraBound;
 import static com.example.androidase_.drivers.MapsDriver.drawCircle;
@@ -47,18 +47,19 @@ import static com.example.androidase_.verification.VerificationAlertBox.verifyin
 public class DisasterReport {
     public static ArrayList<String> results = new ArrayList<>();
 
-    public static void initialiseDisasterReport(LatLng disasterLocation, ReportedDisaster reportedDisaster, boolean isDisasterOnUserLocation, Activity a, String potentialDisasterName) {
+    public static void initialiseDisasterReport(LatLng disasterLocation, ReportedDisaster reportedDisaster, boolean isDisasterOnUserLocation, Activity a, String potentialDisasterName, String userReferenceCode) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("Latitude", disasterLocation.latitude);
             jsonObject.put("Longitude", disasterLocation.longitude);
             jsonObject.put("ReportedTime", String.valueOf(System.currentTimeMillis() / 1000));
-            jsonObject.put("ReportedBy", username);
+            jsonObject.put("ReportedBy", userReferenceCode);
+            jsonObject.put("ReferenceCode", userReferenceCode);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         //For backend
-//        createThreadPostDisaster("http://" + a.getResources().getString(R.string.ip_address) + "/services/ds/DisasterReport/reportDisaster", jsonObject, a);
+//        createThreadPostDisaster("http://" + a.getResources().getString(R.string.ip_address) + "/services/ds/DisasterReport/reportDisaster", jsonObject, a, disasterLocation.latitude, disasterLocation.longitude, potentialDisasterName);
         //For demo
         new VerificationAlertBox().sendRequestToFirebase("MY_TOPIC", "New Disaster Reported", "Please verify the reported disaster.", 0, 0, 0);
         MapsActivity.sendMessage("ase/persona/reportingDisaster", disasterLocation.latitude + "," + disasterLocation.longitude + "," + (System.currentTimeMillis() / 1000) + "," + potentialDisasterName);
@@ -134,14 +135,11 @@ public class DisasterReport {
                         e.printStackTrace();
                     }
                     //end
-                    // For backend
-//                    VerificationActivity.createThreadPostToVerify("http://" + a.getResources().getString(R.string.ip_address) + "/services/ds/disasterReport/verifiedDisaster", verifyingDisasterPOJO.objToJson(), a);
-                    //For demo
-                    Log.d("CircleDrawing42", "sending message");
-
                     JSONArray arrayOfArray = listToJSONArray(list);
 
-
+                    // For backend
+//                    VerificationActivity.createThreadPostToVerify("http://" + a.getResources().getString(R.string.ip_address) + "/services/ds/disasterReport/verifiedDisaster", verifyingDisasterPOJO.objToJson(), a, disasterLocation, radius, arrayOfArray);
+                    //For demo
                     new VerificationAlertBox().sendRequestToFirebase("MY_TOPIC", "Alert", "There is a disaster near you. Please be careful.", 0, 0, 0);
                     VerificationActivity.sendMessage("ase/persona/verifiedDisaster", disasterLocation.latitude + "," + disasterLocation.longitude + "," + radius + "," + String.valueOf(arrayOfArray).replaceAll(",", "!"));
                 }
@@ -185,6 +183,7 @@ public class DisasterReport {
                 createThreadGetForExitRoute(url, a, listOfLists);
             }
         }
+        plotEntryExitRoutes(listOfLists);
     }
 
     private static void plotExitRoute(Activity a, final String result, int color) {
@@ -240,7 +239,6 @@ public class DisasterReport {
                     a.runOnUiThread(new Runnable() {
                         public void run() {
                             plotExitRoute(a, result[0], Color.BLUE);
-                            plotEntryExitRoutes(listOfLists);
                         }
                     });
                 }
@@ -328,7 +326,7 @@ public class DisasterReport {
         return points;
     }
 
-    public static void createThreadPostDisaster(final String url, final JSONObject object, final Activity a) throws NullPointerException {
+    public static void createThreadPostDisaster(final String url, final JSONObject object, final Activity a, final double latitude, final double longitude, final String potentialDisasterName) throws NullPointerException {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -344,7 +342,8 @@ public class DisasterReport {
                             @Override
                             public void run() {
                                 if (finalCode == 200) {
-                                    Toast.makeText(a, "DisasterReport Reported Successfully", Toast.LENGTH_SHORT).show();
+                                    new VerificationAlertBox().sendRequestToFirebase("MY_TOPIC", "New Disaster Reported", "Please verify the reported disaster.", 0, 0, 0);
+                                    MapsActivity.sendMessage("ase/persona/reportingDisaster", latitude + "," + longitude + "," + (System.currentTimeMillis() / 1000) + "," + potentialDisasterName);
                                 } else {
                                     Toast.makeText(a, String.valueOf(finalCode), Toast.LENGTH_SHORT).show();
                                 }
@@ -356,6 +355,4 @@ public class DisasterReport {
         });
         thread.start();
     }
-
-
 }

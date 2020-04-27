@@ -66,6 +66,8 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -93,8 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static ArrayList<Circle> circleArrayList = new ArrayList<>();
     public static ArrayList<Polyline> exitRoutePolylines = new ArrayList<>();
     public static ArrayList<Polyline> entryExitRoutesPolylines = new ArrayList<>();
-    public static ArrayList<Polyline> fireBrigadeRoutePolylines = new ArrayList<>();
-    public static ArrayList<Polyline> policeStationRoutePolylines = new ArrayList<>();
+
     public static ArrayList<Polyline> routeBetweenTwoPointsPolylines = new ArrayList<>();
     public static ArrayList<Polyline> routeBetweenThreePointsPolylines = new ArrayList<>();
     public static ArrayList<Marker> busStopsOnScreenMarkers = new ArrayList<>();
@@ -156,7 +157,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
         username = pref.getString("username", "null");
-
+        final String userReferenceCode = pref.getString("userReferenceCode", "null");
 
         //init
         API_KEY = "AIzaSyBPOVbWCZG6Weeunh-J2-t3NiyG_1-NXpQ";
@@ -221,7 +222,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 reportedDisaster = new ReportedDisaster();
                 disasterReportAlert = new DisasterReportAlert();
-                disasterReportAlert.createAlert(MapsActivity.this, "Are you sure to report disaster at " + potentialDisasterName + "?", "Yes", "No", tempLocation, reportedDisaster, isDisasterOnUserLocation, a, potentialDisasterName);
+                disasterReportAlert.createAlert(MapsActivity.this, "Are you sure to report disaster at " + potentialDisasterName + "?", "Yes", "No", tempLocation, reportedDisaster, isDisasterOnUserLocation, a, potentialDisasterName, userReferenceCode);
             }
         });
 
@@ -463,7 +464,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("CircleDrawing42", "String.valueOf(radius)");
         int qos = 1;
         try {
-            IMqttToken subToken = client.subscribe(new String[]{"ase/persona/verifiedDisaster", "ase/persona/reportingDisaster"}, new int[]{qos, qos});
+            IMqttToken subToken = client.subscribe(new String[]{"ase/persona/verifiedDisaster", "ase/persona/reportingDisaster", "RSCD/Server/Disaster/Verification"}, new int[]{qos, qos, qos});
             subToken.setActionCallback(new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -496,12 +497,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void messageArrived(String topic, MqttMessage message) {
-                String msg = new String(message.getPayload(), StandardCharsets.UTF_8);
-                String[] arr = msg.split(",");
-                double lat = Double.parseDouble(arr[0]);
-                double lng = Double.parseDouble(arr[1]);
-                double radius = Double.parseDouble(arr[2]);
                 if (topic.equals("ase/persona/verifiedDisaster")) {
+                    String msg = new String(message.getPayload(), StandardCharsets.UTF_8);
+                    String[] arr = msg.split(",");
+                    double lat = Double.parseDouble(arr[0]);
+                    double lng = Double.parseDouble(arr[1]);
+                    double radius = Double.parseDouble(arr[2]);
                     String listOfLists = arr[3];
                     Log.d("CircleDrawing42", topic);
                     Log.d("CircleDrawing42", msg);
@@ -518,7 +519,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         createThreadGetForRouteBetweenTwoLocations(url, a);
                         animateUsingBound(globalCurrentLocation, searchedDestination, 100);
                     }
-                } else if (topic.equals("ase/persona/reportingDisaster")) {
+                } else if (topic.equals("RSCD/Server/Disaster/Verification")) {
+                    String msg = new String(message.getPayload(), StandardCharsets.UTF_8);
+                    try {
+                        JSONObject object = new JSONObject(msg);
+                        String disasterReference = object.getString("ReferenceId");
+                        String landmark = object.getString("Landmark");
+                        String reportedTime = object.getString("ReportedTime");
+                        String reportedBy = object.getString("ReportedBy");
+                        double lat = object.getDouble("Latitude");
+                        double lng = object.getDouble("Longitude");
+
+                        SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
+                        editor.putString("disasterReference", disasterReference);
+                        editor.apply();
+
+                        SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
+                        boolean isCommonUser = pref.getBoolean("isCommonUser", true);
+                        if (!isCommonUser) {
+                            Intent myIntent = new Intent(MapsActivity.this, VerificationActivity.class);
+                            myIntent.putExtra("disasterReference", disasterReference);
+                            myIntent.putExtra("lat", lat);
+                            myIntent.putExtra("lng", lng);
+                            myIntent.putExtra("user_lat", globalCurrentLocation.latitude);
+                            myIntent.putExtra("user_lng", globalCurrentLocation.longitude);
+                            myIntent.putExtra("area_name", landmark);
+                            MapsActivity.this.startActivity(myIntent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                else if (topic.equals("ase/persona/reportingDisaster")) {
+                    String msg = new String(message.getPayload(), StandardCharsets.UTF_8);
+                    String[] arr = msg.split(",");
+                    double lat = Double.parseDouble(arr[0]);
+                    double lng = Double.parseDouble(arr[1]);
+                    double radius = Double.parseDouble(arr[2]);
                     String areaName = arr[3];
                     SharedPreferences pref = getApplicationContext().getSharedPreferences("LoginData", MODE_PRIVATE);
                     boolean isCommonUser = pref.getBoolean("isCommonUser", true);
@@ -533,6 +571,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
             }
+
             @Override
             public void deliveryComplete(IMqttDeliveryToken token) {
 //                status.setText("delivery completed.");

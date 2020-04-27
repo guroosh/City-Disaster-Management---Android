@@ -58,12 +58,12 @@ public class LoginActivity extends AppCompatActivity {
 
                 //For backend
                 CommonUserRegistrationPOJO commonUser = new CommonUserRegistrationPOJO();
-//                CommonUserAfterLoginPOJO commonUserAfterLoginPOJO = createThreadPostToLogin("http://" + getResources().getString(R.string.ip_address) + "/login/login", commonUser.objToJson(usernameString, passwordString), usernameString, passwordString);
+                CommonUserAfterLoginPOJO commonUserAfterLoginPOJO = createThreadPostToLogin("http://" + getResources().getString(R.string.ip_address) + "/login/login", commonUser.objToJson(usernameString, passwordString), usernameString, passwordString);
 
                 //For demo
                 HashMap<String, String> row = userDatabase.getRow(tableName, usernameString);
                 boolean isUserNameSame = checkUsernameAndPassword(usernameString, passwordString, row.get(columnNames[0]), row.get(columnNames[1]));
-                startNextActivity(true, usernameString, passwordString, isUserNameSame, "");
+//                startNextActivity(true, usernameString, passwordString, isUserNameSame, "");
             }
         });
 
@@ -126,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                                 commonUserAfterLoginPOJO[0].isCommonUser = jsonObject.getBoolean("isCommonUser");
                                 commonUserAfterLoginPOJO[0].referenceCode = jsonObject.getString("referenceCode");
                                 boolean isCommonUser = commonUserAfterLoginPOJO[0].isCommonUser;
-//                                startNextActivity(true, username, password, true, jsonObject.getString("referenceCode"));
+                                startNextActivity(isCommonUser, username, password, true, commonUserAfterLoginPOJO[0].referenceCode);
                                 a.runOnUiThread(new Runnable() {
                                     public void run() {
                                         Toast.makeText(getApplicationContext(), "Success: " + returnValue[0].code(), Toast.LENGTH_SHORT).show();
@@ -166,8 +166,8 @@ public class LoginActivity extends AppCompatActivity {
             }
             editor.putString("username", username);
             editor.putBoolean("loggedIn", true);
-            editor.putBoolean("isCommonUser", true);
-            editor.putString("referenceCode", referenceCode);
+            editor.putBoolean("isCommonUser", isCommonUser);
+            editor.putString("userReferenceCode", referenceCode);
             editor.apply();
             Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
             LoginActivity.this.startActivity(myIntent);
@@ -176,7 +176,8 @@ public class LoginActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = getSharedPreferences("LoginData", MODE_PRIVATE).edit();
             editor.putString("username", "anonymous");
             editor.putBoolean("loggedIn", true);
-            editor.putBoolean("isCommonUser", true);
+            editor.putBoolean("isCommonUser", isCommonUser);
+            editor.putString("referenceCode", referenceCode);
             editor.apply();
             Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
             LoginActivity.this.startActivity(myIntent);
@@ -185,6 +186,7 @@ public class LoginActivity extends AppCompatActivity {
             editor.putString("username", "admin");
             editor.putBoolean("loggedIn", true);
             editor.putBoolean("isCommonUser", false);
+            editor.putString("referenceCode", referenceCode);
             editor.apply();
             Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
             LoginActivity.this.startActivity(myIntent);

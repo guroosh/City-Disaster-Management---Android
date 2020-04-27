@@ -29,6 +29,7 @@ public class VerifyingDisasterPOJO {
         JSONObject json = new JSONObject();
         try {
             // Convert POJO to JSON
+
             json.put("ReferenceCode", this.referenceId);
             json.put("Latitude", this.latitude);
             json.put("Longitude", this.longitude);

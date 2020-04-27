@@ -87,9 +87,9 @@ public class RegistrationActivity extends AppCompatActivity {
                     Log.d("OUTPUT42", commonUser.objToJson().toString());
 
                     //For backend
-//                    createThreadPostToSignup("http://" + getResources().getString(R.string.ip_address) + "/services/rs/registration/registerCu", commonUser.objToJson());
+                    createThreadPostToSignup("http://" + getResources().getString(R.string.ip_address) + "/services/rs/registration/registerCu", commonUser.objToJson(), commonUser.emailId, commonUser.password);
                     //For demo
-                    startNextActivity(commonUser.emailId, commonUser.password);
+//                    startNextActivity(commonUser.emailId, commonUser.password);
 
 //                } else {
 //                    Toast.makeText(getApplicationContext(), "Nope", Toast.LENGTH_SHORT).show();
@@ -162,7 +162,7 @@ public class RegistrationActivity extends AppCompatActivity {
         return flg;
     }
 
-    public void createThreadPostToSignup(final String url, final JSONObject object) throws NullPointerException {
+    public void createThreadPostToSignup(final String url, final JSONObject object, final String emailId, final String password) throws NullPointerException {
         final Response[] response = new Response[1];
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -181,7 +181,8 @@ public class RegistrationActivity extends AppCompatActivity {
                         if (response[0].code() == 200) {
                             a.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    Toast.makeText(getApplicationContext(), "Registration Successful", Toast.LENGTH_SHORT).show();
+                                    startNextActivity(emailId, password);
+//                                    Toast.makeText(getApplicationContext(), "Registration Successful", Toast.LENGTH_SHORT).show();
                                 }
                             });
 //                            Intent myIntent = new Intent(RegistrationActivity.this, MapsActivity.class);
