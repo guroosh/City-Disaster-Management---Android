@@ -46,8 +46,14 @@ The android application has been developed for users (citizens and field agents)
   * SQLLite: Used for storing data locally.
     
 * Application UI:
-
-  <img src="images/one.jpg" width="200">
+   * Exit routes.
+   * Rerouting.
+   * Evacuation routes showing entry and exit routes.
+   * Admin disaaster verification form.
+   
+   
   <img src="images/two.jpg" width="200">
+  <img src="images/one.jpg" width="200">
   <img src="images/three.jpg" width="200">
+  <img src="images/four.jpg" width="200">
   
