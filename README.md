@@ -19,10 +19,14 @@ We implemented the backend using Microservice architecture.The microservice arch
 We adopted an Extreme programming (XP) development methodology which included Pair programming and Test driven development. 
 Production deployment was done using AWS EC2 instances.
 
+  <img src="images/protocols.png" width="500">
+
 **Android application**
 
 The android application has been developed for users (citizens and field agents) to report disasters, verify disaster and receive notifications or alerts during a disaster.
 
+ <img src="images/architecture.png" width="500">
+ 
 * Programing languages:
     * Java
     * XML
