@@ -51,7 +51,7 @@ The android application has been developed for users (citizens and field agents)
    * Evacuation routes showing entry and exit routes.
    * Admin disaaster verification form.
    
-   
+   &nbsp;
    
   <img src="images/three.jpg" width="200">
   <img src="images/one.jpg" width="200">
