@@ -2,7 +2,7 @@
 
 **Overview**
 
-We implemented the backend using Microservice architecture.The microservice architecture comprises independent modular services where each service solves a specific problem or performs a unique task and these modules communicate with each other through well-defined API to serve the business goal.
+We implemented the backend using Microservice architecture. The microservice architecture comprises independent modular services where each service solves a specific problem or performs a unique task and these modules communicate with each other through well-defined API to serve the business goal.
 
 **Components**
 
