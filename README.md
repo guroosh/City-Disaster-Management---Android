@@ -6,7 +6,7 @@ We implemented the backend using Microservice architecture. The microservice arc
 
 **Components**
 
-* A mobile application (Android) for registered users.
+* A mobile application (Android) for registered users ([Link](https://github.com/guroosh/City-Disaster-Management---Android)).
 
 * A web application for admin users.
 
